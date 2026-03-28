@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mandarim Master ULTRA</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
+    <style>
+        :root { --primary: #4255ff; --bg: #f6f7fb; --card: #fff; --success: #27ae60; --danger: #e74c3c; --warning: #f39c12; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); margin: 0; padding: 20px; padding-bottom: 80px; }
+        .container { max-width: 700px; margin: 0 auto; }
+        
+        /* Layout e Cards */
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; background: #fff; padding: 8px; border-radius: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .tab-btn { flex: 1; padding: 12px; border: none; background: transparent; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .tab-btn.active { background: var(--primary); color: white; }
+        .deck-card { background: var(--card); padding: 20px; border-radius: 15px; margin-bottom: 15px; border-left: 6px solid var(--primary); position: relative; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        
+        /* Progresso */
+        .prog-bg { width: 100%; background: #eee; height: 10px; border-radius: 5px; margin: 12px 0; overflow: hidden; }
+        .prog-fill { height: 100%; background: var(--success); transition: 0.6s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .stat { padding: 8px; border-radius: 8px; text-align: center; color: #fff; font-size: 0.8em; font-weight: bold; }
+        
+        /* Estudo */
+        .study-box { background: #fff; padding: 40px 20px; border-radius: 25px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1); min-height: 350px; display: flex; flex-direction: column; justify-content: center; }
+        .term { font-size: 2.5em; font-weight: bold; color: var(--primary); margin-bottom: 20px; }
+        input { width: 100%; padding: 18px; border-radius: 12px; border: 2px solid #ddd; font-size: 1.2em; text-align: center; box-sizing: border-box; }
+        
+        .main-btn { background: var(--primary); color: #fff; border: none; padding: 16px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; margin-top: 15px; }
+        .sync-btn { background: #1a1d28; margin-top: 20px; font-size: 0.9em; }
+        .btn-del { position: absolute; top: 15px; right: 15px; background: none; border: none; color: #ddd; cursor: pointer; }
+        .section { display: none; } .section.active { display: block; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="tabs">
+        <button class="tab-btn active" onclick="showSection('library')">Meus Baralhos</button>
+        <button class="tab-btn" onclick="showSection('create')">Novo</button>
+    </div>
+
+    <div id="library" class="section active">
+        <div id="deck-list"></div>
+        <button class="main-btn sync-btn" onclick="generateSyncLink()">🔗 Gerar Link de Sincronização PRO</button>
+        <p style="text-align:center; font-size: 0.75em; color: #888; margin-top: 8px;">Copia o progresso atual para abrir em outro dispositivo.</p>
+    </div>
+
+    <div id="create" class="section">
+        <div class="study-box">
+            <h3>Criar Baralho</h3>
+            <input type="text" id="deck-name" placeholder="Nome (Ex: HSK 2)">
+            <textarea id="bulk-input" placeholder="Hanzi;Pinyin - Tradução" style="width:100%; height:120px; margin-top:10px; padding:10px; border-radius:12px; border:2px solid #ddd;"></textarea>
+            <button class="main-btn" onclick="saveDeck()">Criar Agora</button>
+        </div>
+    </div>
+
+    <div id="study-area" class="section">
+        <div class="study-box">
+            <div style="font-size:0.8em; margin-bottom:20px" id="prog-text">0/0</div>
+            <div class="term" id="display-term">...</div>
+            <div id="interaction"></div>
+            <div id="feedback" style="margin-top:20px; font-weight:bold"></div>
+            <button id="next-btn" class="main-btn" style="display:none" onclick="processNext()">Próximo (Enter)</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const STORAGE_KEY = 'ebbinghaus_vFinal_Full';
+    const INTERVALS = [0, 1, 10, 1440, 2880, 7200, 21600, 43200];
+    let decks = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    let currentSession = { idx: null, cards: [], curIdx: 0, answered: false };
+
+    // --- SINCRONIZAÇÃO PRO ---
+    function generateSyncLink() {
+        const compressed = LZString.compressToEncodedURIComponent(JSON.stringify(decks));
+        const url = window.location.href.split('?')[0] + '?sync=' + compressed;
+        navigator.clipboard.writeText(url).then(() => alert("✅ Link copiado! Abra este link no seu outro aparelho."));
+    }
+
+    function checkSyncURL() {
+        const params = new URLSearchParams(window.location.search);
+        const data = params.get('sync');
+        if (data) {
+            if (confirm("🔄 Sincronização Detectada! Deseja carregar o progresso vindo do outro dispositivo? Isso substituirá os dados atuais.")) {
+                const decoded = LZString.decompressFromEncodedURIComponent(data);
+                if (decoded) {
+                    decks = JSON.parse(decoded);
+                    localStorage.setItem(STORAGE_KEY, decoded);
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                    renderDecks();
+                }
+            }
+        }
+    }
+
+    // --- NAVEGAÇÃO ---
+    function showSection(id) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        if(id === 'library') renderDecks();
+    }
+
+    function saveDeck() {
+        const name = document.getElementById('deck-name').value;
+        const text = document.getElementById('bulk-input').value;
+        if(!name || !text) return;
+        const cards = text.trim().split('\n').map(l => {
+            const [f, b] = l.split(';');
+            return f && b ? { front: f.trim(), back: b.trim(), level: 0, nextReview: Date.now() } : null;
+        }).filter(c => c);
+        decks.push({ name, cards });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(decks));
+        showSection('library');
+    }
+
+    function renderDecks() {
+        const container = document.getElementById('deck-list');
+        container.innerHTML = '';
+        const now = Date.now();
+
+        decks.map((d, i) => {
+            const rev = d.cards.filter(c => c.level > 0 && c.level < 7 && c.nextReview <= now).length;
+            const mas = d.cards.filter(c => c.level >= 7).length;
+            const perc = d.cards.length > 0 ? Math.round((mas / d.cards.length) * 100) : 0;
+            return { ...d, i, rev, mas, perc };
+        }).sort((a,b) => b.rev - a.rev).forEach(d => {
+            container.innerHTML += `
+                <div class="deck-card">
+                    <button class="btn-del" onclick="deleteDeck(${d.i})">✖</button>
+                    <strong>${d.name}</strong>
+                    <div class="prog-bg"><div class="prog-fill" style="width:${d.perc}%"></div></div>
+                    <div class="stats-grid">
+                        <div class="stat" style="background:#3498db">Total: ${d.cards.length}</div>
+                        <div class="stat" style="background:var(--warning)">Revisar: ${d.rev}</div>
+                        <div class="stat" style="background:var(--success)">Domínio: ${d.perc}%</div>
+                    </div>
+                    <button class="main-btn" onclick="startStudy(${d.i})">Estudar Hanzi</button>
+                </div>`;
+        });
+    }
+
+    // --- LÓGICA DE ESTUDO ---
+    function startStudy(idx) {
+        const due = decks[idx].cards.filter(c => c.nextReview <= Date.now() || c.level === 0);
+        if(!due.length) return alert("Tudo revisado por agora!");
+        currentSession = { idx, cards: due.sort(() => Math.random() - 0.5).slice(0, 15), curIdx: 0, answered: false };
+        showSection('study-area');
+        renderCard();
+    }
+
+    function renderCard() {
+        const c = currentSession.cards[currentSession.curIdx];
+        const display = c.back.includes('-') ? c.back.split('-')[1].trim() : c.back;
+        document.getElementById('display-term').innerText = display;
+        document.getElementById('prog-text').innerText = `${currentSession.curIdx + 1} / ${currentSession.cards.length}`;
+        document.getElementById('interaction').innerHTML = `<input type="text" id="type-in" autocomplete="off" onkeypress="handleKey(event)">`;
+        document.getElementById('feedback').innerText = '';
+        document.getElementById('next-btn').style.display = 'none';
+        currentSession.answered = false;
+        setTimeout(() => document.getElementById('type-in').focus(), 50);
+    }
+
+    function handleKey(e) {
+        if (e.key === 'Enter' && !currentSession.answered) {
+            const val = e.target.value.trim();
+            if(!val) return;
+            currentSession.answered = true;
+            const c = currentSession.cards[currentSession.curIdx];
+            const feedback = document.getElementById('feedback');
+            
+            if (val === c.front.trim()) {
+                feedback.innerText = "✅ Correto!";
+                feedback.style.color = "var(--success)";
+                c.level = Math.min(c.level + 1, 7);
+            } else {
+                feedback.innerText = "❌ Errado: " + c.front;
+                feedback.style.color = "var(--danger)";
+                c.level = Math.max(c.level - 1, 1);
+            }
+            c.nextReview = Date.now() + (INTERVALS[c.level] * 60000);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(decks));
+            document.getElementById('next-btn').style.display = 'block';
+        }
+    }
+
+    function processNext() {
+        currentSession.curIdx++;
+        if (currentSession.curIdx < currentSession.cards.length) renderCard();
+        else showSection('library');
+    }
+
+    function deleteDeck(i) { if(confirm("Apagar?")) { decks.splice(i, 1); localStorage.setItem(STORAGE_KEY, JSON.stringify(decks)); renderDecks(); } }
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Enter' && document.getElementById('next-btn').style.display === 'block') processNext();
+    });
+
+    checkSyncURL();
+    renderDecks();
+</script>
+</body>
+</html>
