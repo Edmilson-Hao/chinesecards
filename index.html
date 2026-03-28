@@ -19,13 +19,19 @@
         .prog-fill { height: 100%; background: var(--success); transition: 0.6s; }
         .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         .stat { padding: 8px; border-radius: 8px; text-align: center; color: #fff; font-size: 0.8em; font-weight: bold; }
-        .study-box { background: #fff; padding: 40px 20px; border-radius: 25px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1); min-height: 350px; display: flex; flex-direction: column; justify-content: center; }
-        .term { font-size: 2.5em; font-weight: bold; color: var(--primary); margin-bottom: 20px; }
+        .study-box { background: #fff; padding: 40px 20px; border-radius: 25px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1); min-height: 400px; display: flex; flex-direction: column; justify-content: center; }
+        .term { font-size: 2.8em; font-weight: bold; color: var(--primary); margin-bottom: 20px; }
         input { width: 100%; padding: 18px; border-radius: 12px; border: 2px solid #ddd; font-size: 1.2em; text-align: center; box-sizing: border-box; }
+        
+        /* Botões de Múltipla Escolha */
+        .options-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 20px; }
+        .opt-btn { background: #fff; border: 2px solid #eee; padding: 15px; border-radius: 12px; font-size: 1.1em; cursor: pointer; transition: 0.2s; font-weight: 500; }
+        .opt-btn:hover { border-color: var(--primary); background: #f0f2ff; }
+        .opt-btn.correct { background: var(--success) !important; color: white; border-color: var(--success); }
+        .opt-btn.wrong { background: var(--danger) !important; color: white; border-color: var(--danger); }
+
         .main-btn { background: var(--primary); color: #fff; border: none; padding: 16px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; margin-top: 15px; }
-        .sync-btn { background: #1a1d28; margin-top: 20px; font-size: 0.85em; }
-        .json-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-        .json-btn { background: #6c757d; color: white; border: none; padding: 10px; border-radius: 8px; font-size: 0.8em; cursor: pointer; font-weight: 600; }
+        .json-btn { background: #6c757d; color: white; border: none; padding: 10px; border-radius: 8px; font-size: 0.8em; cursor: pointer; font-weight: 600; flex: 1; }
         .btn-del { position: absolute; top: 15px; right: 15px; background: none; border: none; color: #ddd; cursor: pointer; }
         .section { display: none; } .section.active { display: block; }
         #install-prompt { display: none; background: #333; color: white; padding: 15px; position: fixed; bottom: 20px; left: 20px; right: 20px; border-radius: 12px; z-index: 1000; justify-content: space-between; align-items: center; }
@@ -34,7 +40,7 @@
 <body>
 
 <div id="install-prompt">
-    <span>Deseja instalar o App no seu celular?</span>
+    <span>Instalar Mandarim Master?</span>
     <button onclick="installApp()" style="background:var(--success); color:white; border:none; padding:8px 15px; border-radius:8px; font-weight:bold;">Instalar</button>
 </div>
 
@@ -45,12 +51,12 @@
     </div>
 
     <div id="library" class="section active">
-        <button class="main-btn" style="background:var(--warning); margin-bottom:20px;" onclick="requestNotificationPermission()">🔔 Ativar Notificações</button>
+        <button class="main-btn" style="background:var(--warning); margin-bottom:20px; font-size: 0.9em;" onclick="requestNotificationPermission()">🔔 Ativar Notificações de Estudo</button>
         <div id="deck-list"></div>
         
-        <div style="margin-top: 30px; border-top: 1px solid #ddd; padding-top: 20px;">
-            <button class="main-btn sync-btn" onclick="generateSyncLink()">🔗 Gerar Link de Sincronização PRO</button>
-            <div class="json-btns">
+        <div style="margin-top: 30px; border-top: 1px solid #ddd; padding-top: 20px; text-align: center;">
+            <button class="main-btn" style="background: #1a1d28; margin-bottom:10px" onclick="generateSyncLink()">🔗 Sincronizar via Link PRO</button>
+            <div style="display:flex; gap:10px;">
                 <button class="json-btn" onclick="exportJSON()">📤 Exportar JSON</button>
                 <button class="json-btn" onclick="document.getElementById('fileIn').click()">📥 Importar JSON</button>
             </div>
@@ -62,17 +68,17 @@
         <div class="study-box">
             <h3>Novo Baralho</h3>
             <input type="text" id="deck-name" placeholder="Nome do Baralho">
-            <textarea id="bulk-input" placeholder="Hanzi;Pinyin - Tradução" style="width:100%; height:120px; margin-top:10px; padding:10px; border-radius:12px; border:2px solid #ddd;"></textarea>
+            <textarea id="bulk-input" placeholder="Hanzi;Pinyin - Tradução (Uma por linha)" style="width:100%; height:120px; margin-top:10px; padding:10px; border-radius:12px; border:2px solid #ddd;"></textarea>
             <button class="main-btn" onclick="saveDeck()">Salvar Baralho</button>
         </div>
     </div>
 
     <div id="study-area" class="section">
         <div class="study-box">
-            <div style="font-size:0.8em; margin-bottom:20px; color: #888;" id="prog-text">0/0</div>
+            <div style="font-size:0.8em; margin-bottom:10px; color: #888;" id="prog-text">0/0</div>
             <div class="term" id="display-term">...</div>
-            <div id="interaction"></div>
-            <div id="feedback" style="margin-top:20px; font-weight:bold; height: 30px;"></div>
+            <div id="interaction-zone"></div>
+            <div id="feedback" style="margin-top:15px; font-weight:bold; min-height: 25px;"></div>
             <button id="next-btn" class="main-btn" style="display:none" onclick="processNext()">Próximo (Enter)</button>
         </div>
     </div>
@@ -82,92 +88,53 @@
     const STORAGE_KEY = 'ebbinghaus_vFinal_Full';
     const INTERVALS = [0, 1, 10, 1440, 2880, 7200, 21600, 43200];
     let decks = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    let curSession = { deckIdx: 0, cards: [], cur: 0, mode: 'typing', answered: false };
     let deferredPrompt;
 
-    // --- SERVICE WORKER & INSTALAÇÃO ---
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js');
-    }
+    // --- PWA & NOTIFICAÇÕES ---
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; document.getElementById('install-prompt').style.display = 'flex'; });
+    async function installApp() { if (deferredPrompt) { deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if (outcome === 'accepted') document.getElementById('install-prompt').style.display = 'none'; } }
+    function requestNotificationPermission() { Notification.requestPermission().then(p => { if (p === 'granted') new Notification("Mandarim Master", { body: "Pronto! Avisaremos você das revisões." }); }); }
 
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        document.getElementById('install-prompt').style.display = 'flex';
-    });
-
-    async function installApp() {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') document.getElementById('install-prompt').style.display = 'none';
-        }
-    }
-
-    // --- NOTIFICAÇÕES ---
-    function requestNotificationPermission() {
-        Notification.requestPermission().then(permission => {
-            if (permission === 'granted') {
-                new Notification("Mandarim Master", { body: "Notificações ativadas com sucesso!" });
-            }
-        });
-    }
-
-    // --- SINCRONIZAÇÃO LINK & JSON ---
+    // --- SINCRONIZAÇÃO ---
     function generateSyncLink() {
         const compressed = LZString.compressToEncodedURIComponent(JSON.stringify(decks));
         const url = window.location.origin + window.location.pathname + '?sync=' + compressed;
-        navigator.clipboard.writeText(url).then(() => alert("Link copiado! Envie para seu outro dispositivo."));
+        navigator.clipboard.writeText(url).then(() => alert("Link copiado! Abra no outro dispositivo."));
     }
 
     function checkSyncURL() {
         const params = new URLSearchParams(window.location.search);
         const data = params.get('sync');
-        if (data) {
-            if (confirm("🔄 Sincronização detectada! Substituir dados atuais?")) {
-                const decoded = LZString.decompressFromEncodedURIComponent(data);
-                if (decoded) {
-                    decks = JSON.parse(decoded);
-                    localStorage.setItem(STORAGE_KEY, decoded);
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                    renderDecks();
-                }
-            }
+        if (data && confirm("🔄 Sincronização detectada! Importar dados?")) {
+            const decoded = LZString.decompressFromEncodedURIComponent(data);
+            if (decoded) { decks = JSON.parse(decoded); localStorage.setItem(STORAGE_KEY, decoded); window.history.replaceState({}, '', window.location.pathname); renderDecks(); }
         }
     }
 
     function exportJSON() {
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(decks));
-        const a = document.createElement('a');
-        a.setAttribute("href", dataStr);
-        a.setAttribute("download", "progresso_mandarim.json");
-        a.click();
+        const a = document.createElement('a'); a.setAttribute("href", dataStr); a.setAttribute("download", "backup_mandarim.json"); a.click();
     }
 
-    function importJSON(event) {
+    function importJSON(e) {
         const reader = new FileReader();
-        reader.onload = (e) => {
-            decks = JSON.parse(e.target.result);
-            localStorage.setItem(STORAGE_KEY, e.target.result);
-            renderDecks();
-            alert("✅ Importado!");
-        };
-        reader.readAsText(event.target.files[0]);
+        reader.onload = (ev) => { decks = JSON.parse(ev.target.result); localStorage.setItem(STORAGE_KEY, ev.target.result); renderDecks(); alert("✅ Importado!"); };
+        reader.readAsText(e.target.files[0]);
     }
 
-    // --- LOGICA DE ESTUDO (REDUZIDA) ---
-    function showSection(id) {
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        if(id === 'library') renderDecks();
-    }
+    // --- CORE ---
+    function showSection(id) { document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); if(id === 'library') renderDecks(); }
 
     function saveDeck() {
         const name = document.getElementById('deck-name').value;
         const text = document.getElementById('bulk-input').value;
+        if(!name || !text) return;
         const cards = text.trim().split('\n').map(l => {
             const [f, b] = l.split(';');
-            return { front: f.trim(), back: b.trim(), level: 0, nextReview: Date.now() };
-        });
+            return f && b ? { front: f.trim(), back: b.trim(), level: 0, nextReview: Date.now() } : null;
+        }).filter(c => c);
         decks.push({ name, cards });
         localStorage.setItem(STORAGE_KEY, JSON.stringify(decks));
         showSection('library');
@@ -191,52 +158,91 @@
                         <div class="stat" style="background:var(--warning)">R: ${rev}</div>
                         <div class="stat" style="background:var(--success)">${perc}%</div>
                     </div>
-                    <button class="main-btn" onclick="startStudy(${i})">Estudar</button>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px">
+                        <button class="main-btn" style="margin:0; font-size:0.8em;" onclick="startStudy(${i}, 'typing')">⌨ Digitar</button>
+                        <button class="main-btn" style="margin:0; font-size:0.8em; background:#8e44ad" onclick="startStudy(${i}, 'choice')">🔘 Escolha</button>
+                    </div>
                 </div>`;
         });
     }
 
-    let curSession = { idx: 0, cards: [], cur: 0 };
-    function startStudy(i) {
+    function startStudy(i, mode) {
         const due = decks[i].cards.filter(c => c.nextReview <= Date.now() || c.level === 0);
-        if(!due.length) return alert("Nada para revisar!");
-        curSession = { idx: i, cards: due.slice(0, 15), cur: 0 };
+        if(!due.length) return alert("Baralho em dia!");
+        // ALEATORIEDADE (SHUFFLE)
+        curSession = { 
+            deckIdx: i, 
+            mode: mode, 
+            cards: due.sort(() => Math.random() - 0.5).slice(0, 15), 
+            cur: 0, 
+            answered: false 
+        };
         showSection('study-area');
         renderCard();
     }
 
     function renderCard() {
         const c = curSession.cards[curSession.cur];
-        document.getElementById('display-term').innerText = c.back.split('-')[1] || c.back;
-        document.getElementById('interaction').innerHTML = `<input type="text" id="type-in" autocomplete="off" onkeypress="handleKey(event)">`;
+        const display = c.back.includes('-') ? c.back.split('-')[1].trim() : c.back;
+        document.getElementById('display-term').innerText = display;
+        document.getElementById('prog-text').innerText = `${curSession.cur + 1} / ${curSession.cards.length}`;
+        document.getElementById('feedback').innerText = '';
         document.getElementById('next-btn').style.display = 'none';
-        setTimeout(() => document.getElementById('type-in').focus(), 50);
-    }
+        curSession.answered = false;
 
-    function handleKey(e) {
-        if (e.key === 'Enter') {
-            const val = e.target.value.trim();
-            const c = curSession.cards[curSession.cur];
-            if (val === c.front.trim()) {
-                c.level = Math.min(c.level + 1, 7);
-                document.getElementById('feedback').innerText = "✅ Correto!";
-            } else {
-                c.level = Math.max(c.level - 1, 1);
-                document.getElementById('feedback').innerText = "❌ " + c.front;
-            }
-            c.nextReview = Date.now() + (INTERVALS[c.level] * 60000);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(decks));
-            document.getElementById('next-btn').style.display = 'block';
+        const zone = document.getElementById('interaction-zone');
+        if (curSession.mode === 'typing') {
+            zone.innerHTML = `<input type="text" id="type-in" autocomplete="off" onkeypress="handleKey(event)">`;
+            setTimeout(() => document.getElementById('type-in').focus(), 50);
+        } else {
+            // MÚLTIPLA ESCOLHA
+            const options = generateOptions(c.front);
+            zone.innerHTML = `<div class="options-grid">${options.map(opt => `<button class="opt-btn" onclick="checkChoice(this, '${opt}')">${opt}</button>`).join('')}</div>`;
         }
     }
 
-    function processNext() {
-        curSession.cur++;
-        if (curSession.cur < curSession.cards.length) renderCard();
-        else showSection('library');
+    function generateOptions(correct) {
+        const allCards = decks[curSession.deckIdx].cards.map(c => c.front);
+        let distractors = allCards.filter(f => f !== correct).sort(() => Math.random() - 0.5).slice(0, 3);
+        return [correct, ...distractors].sort(() => Math.random() - 0.5);
     }
 
-    function deleteDeck(i) { if(confirm("Apagar?")) { decks.splice(i, 1); localStorage.setItem(STORAGE_KEY, JSON.stringify(decks)); renderDecks(); } }
+    function checkChoice(btn, val) {
+        if (curSession.answered) return;
+        const correct = curSession.cards[curSession.cur].front;
+        curSession.answered = true;
+        if (val === correct) {
+            btn.classList.add('correct');
+            handleResult(true);
+        } else {
+            btn.classList.add('wrong');
+            document.querySelectorAll('.opt-btn').forEach(b => { if(b.innerText === correct) b.classList.add('correct'); });
+            handleResult(false);
+        }
+    }
+
+    function handleKey(e) { if (e.key === 'Enter' && !curSession.answered) { const val = e.target.value.trim(); handleResult(val === curSession.cards[curSession.cur].front); } }
+
+    function handleResult(isCorrect) {
+        curSession.answered = true;
+        const c = curSession.cards[curSession.cur];
+        const fb = document.getElementById('feedback');
+        if (isCorrect) {
+            fb.innerText = "✅ Excelente!"; fb.style.color = "var(--success)";
+            c.level = Math.min(c.level + 1, 7);
+        } else {
+            fb.innerText = "❌ Resposta: " + c.front; fb.style.color = "var(--danger)";
+            c.level = Math.max(c.level - 1, 1);
+        }
+        c.nextReview = Date.now() + (INTERVALS[c.level] * 60000);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(decks));
+        document.getElementById('next-btn').style.display = 'block';
+    }
+
+    function processNext() { curSession.cur++; if (curSession.cur < curSession.cards.length) renderCard(); else showSection('library'); }
+    function deleteDeck(i) { if(confirm("Apagar baralho?")) { decks.splice(i, 1); localStorage.setItem(STORAGE_KEY, JSON.stringify(decks)); renderDecks(); } }
+
+    document.addEventListener('keydown', (e) => { if(e.key === 'Enter' && document.getElementById('next-btn').style.display === 'block') processNext(); });
 
     checkSyncURL();
     renderDecks();
