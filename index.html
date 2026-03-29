@@ -144,23 +144,40 @@
         const container = document.getElementById('deck-list');
         container.innerHTML = '';
         const now = Date.now();
-        decks.forEach((d, i) => {
+
+        decks.map((d, i) => {
             const rev = d.cards.filter(c => c.level > 0 && c.level < 7 && c.nextReview <= now).length;
             const mas = d.cards.filter(c => c.level >= 7).length;
-            const perc = Math.round((mas / d.cards.length) * 100) || 0;
+            const perc = d.cards.length > 0 ? Math.round((mas / d.cards.length) * 100) : 0;
+            return { ...d, i, rev, mas, perc };
+        }).sort((a,b) => b.rev - a.rev).forEach(d => {
             container.innerHTML += `
                 <div class="deck-card">
-                    <button class="btn-del" onclick="deleteDeck(${i})">✖</button>
-                    <strong>${d.name}</strong>
-                    <div class="prog-bg"><div class="prog-fill" style="width:${perc}%"></div></div>
-                    <div class="stats-grid">
-                        <div class="stat" style="background:#3498db">T: ${d.cards.length}</div>
-                        <div class="stat" style="background:var(--warning)">R: ${rev}</div>
-                        <div class="stat" style="background:var(--success)">${perc}%</div>
+                    <button class="btn-del" onclick="deleteDeck(${d.i})">✖</button>
+                    <strong style="font-size: 1.2em;">${d.name}</strong>
+                    
+                    <div class="prog-bg">
+                        <div class="prog-fill" style="width:${d.perc}%"></div>
                     </div>
+
+                    <div class="stats-grid">
+                        <div class="stat" style="background:#3498db">
+                            <span style="display:block; font-size:0.7em; opacity:0.9">PALAVRAS</span>
+                            ${d.cards.length}
+                        </div>
+                        <div class="stat" style="background:var(--warning)">
+                            <span style="display:block; font-size:0.7em; opacity:0.9">REVISAR</span>
+                            ${d.rev}
+                        </div>
+                        <div class="stat" style="background:var(--success)">
+                            <span style="display:block; font-size:0.7em; opacity:0.9">DOMÍNIO</span>
+                            ${d.perc}%
+                        </div>
+                    </div>
+
                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px">
-                        <button class="main-btn" style="margin:0; font-size:0.8em;" onclick="startStudy(${i}, 'typing')">⌨ Digitar</button>
-                        <button class="main-btn" style="margin:0; font-size:0.8em; background:#8e44ad" onclick="startStudy(${i}, 'choice')">🔘 Escolha</button>
+                        <button class="main-btn" style="margin:0; font-size:0.9em; padding:12px" onclick="startStudy(${d.i}, 'typing')">⌨ Escrever</button>
+                        <button class="main-btn" style="margin:0; font-size:0.9em; padding:12px; background:#8e44ad" onclick="startStudy(${d.i}, 'choice')">🔘 Escolha</button>
                     </div>
                 </div>`;
         });
