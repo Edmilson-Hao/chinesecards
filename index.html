@@ -3,266 +3,340 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mandarim Master ULTRA</title>
+    <title>Mandarim Master PRO</title>
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#4255ff">
+    <meta name="theme-color" content="#1a1d28">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
     <style>
-        :root { --primary: #4255ff; --bg: #f6f7fb; --card: #fff; --success: #27ae60; --danger: #e74c3c; --warning: #f39c12; }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); margin: 0; padding: 20px; padding-bottom: 100px; }
-        .container { max-width: 700px; margin: 0 auto; }
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; background: #fff; padding: 8px; border-radius: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .tab-btn { flex: 1; padding: 12px; border: none; background: transparent; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        .tab-btn.active { background: var(--primary); color: white; }
-        .deck-card { background: var(--card); padding: 20px; border-radius: 15px; margin-bottom: 15px; border-left: 6px solid var(--primary); position: relative; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .prog-bg { width: 100%; background: #eee; height: 10px; border-radius: 5px; margin: 12px 0; overflow: hidden; }
-        .prog-fill { height: 100%; background: var(--success); transition: 0.6s; }
-        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .stat { padding: 8px; border-radius: 8px; text-align: center; color: #fff; font-size: 0.8em; font-weight: bold; }
-        .study-box { background: #fff; padding: 40px 20px; border-radius: 25px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1); min-height: 400px; display: flex; flex-direction: column; justify-content: center; }
-        .term { font-size: 2.8em; font-weight: bold; color: var(--primary); margin-bottom: 20px; }
-        input { width: 100%; padding: 18px; border-radius: 12px; border: 2px solid #ddd; font-size: 1.2em; text-align: center; box-sizing: border-box; }
+        :root { 
+            --primary: #859bf5; 
+            --bg: #13151a; 
+            --card: #1e212b; 
+            --success: #2ecc71; 
+            --danger: #e74c3c; 
+            --warning: #f39c12; 
+            --text: #ecf0f1; 
+            --sub-text: #bdc3c7;
+            --border: #2c3e50;
+            --input-bg: #2c3e50;
+        }
         
-        /* Botões de Múltipla Escolha */
-        .options-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 20px; }
-        .opt-btn { background: #fff; border: 2px solid #eee; padding: 15px; border-radius: 12px; font-size: 1.1em; cursor: pointer; transition: 0.2s; font-weight: 500; }
-        .opt-btn:hover { border-color: var(--primary); background: #f0f2ff; }
+        #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #1a1d28; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.3s ease-out; }
+        #splash img { width: 100px; height: 100px; margin-bottom: 10px; }
+        #splash h2 { color: white; font-family: sans-serif; letter-spacing: 2px; margin: 0; }
+
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); margin: 0; padding: 15px; color: var(--text); padding-bottom: 100px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        
+        .dash-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px; }
+        .dash-item { padding: 10px 5px; border-radius: 12px; text-align: center; color: white; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        .dash-label { display: block; font-size: 0.55em; font-weight: bold; text-transform: uppercase; opacity: 0.9; }
+        .dash-value { font-size: 1.2em; font-weight: 800; }
+        
+        /* UX: Animação de Streak */
+        @keyframes flame {
+            0% { transform: scale(1); text-shadow: 0 0 0px orange; }
+            50% { transform: scale(1.1); text-shadow: 0 0 10px red; }
+            100% { transform: scale(1); text-shadow: 0 0 0px orange; }
+        }
+        .active-streak { animation: flame 1.5s infinite; color: #ff4500 !important; font-weight: 900; }
+
+        .hsk-section { background: var(--card); padding: 15px; border-radius: 18px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .hsk-bar-container { margin-bottom: 8px; }
+        .hsk-meta { display: flex; justify-content: space-between; font-size: 0.7em; font-weight: bold; margin-bottom: 2px; color: var(--sub-text); }
+        
+        .hsk1 { background: #9b59b6 !important; } .hsk2 { background: #3498db !important; } 
+        .hsk3 { background: #e67e22 !important; } .hsk4 { background: #e74c3c !important; }
+        .hsk-tag { font-size: 0.6em; padding: 2px 5px; border-radius: 4px; margin-left: 4px; color: white; vertical-align: middle; font-weight: bold; text-transform: uppercase; }
+
+        .deck-card { background: var(--card); padding: 18px; border-radius: 18px; margin-bottom: 15px; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border-left: 5px solid var(--primary); }
+        .deck-title { color: var(--text); font-weight: bold; }
+        .prog-bg { width: 100%; background: #2c3e50; height: 8px; border-radius: 4px; margin: 10px 0; overflow: hidden; }
+        .prog-fill { height: 100%; background: linear-gradient(90deg, #2ecc71, #27ae60); transition: 0.5s; }
+        
+        .curve-section { background: var(--card); border-radius: 18px; padding: 15px; margin-top: 20px; border: 1px solid var(--border); box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .curve-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; margin-top: 10px; }
+        .curve-box { background: #2c3e50; border: 1px solid var(--border); padding: 5px; border-radius: 10px; text-align: center; cursor: pointer; color: var(--text); }
+        .lvl-num { display: block; font-weight: 800; font-size: 0.9em; color: var(--primary); }
+        .lvl-desc { font-size: 0.5em; color: var(--sub-text); font-weight: bold; }
+
+        .tabs { display: flex; gap: 8px; margin-bottom: 15px; }
+        .tab-btn { flex: 1; padding: 12px; border: none; background: var(--card); color: var(--text); border-radius: 10px; font-weight: bold; cursor: pointer; }
+        .tab-btn.active { background: var(--primary); color: white; }
+        
+        .main-btn { background: var(--primary); color: #fff; border: none; padding: 12px; border-radius: 10px; font-weight: bold; width: 100%; cursor: pointer; border-bottom: 3px solid rgba(0,0,0,0.3); margin-bottom: 5px; }
+        input, textarea, select { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid var(--border); background-color: var(--input-bg); color: var(--text); font-size: 1em; box-sizing: border-box; margin-bottom: 10px; }
+
+        .word-pill { display: inline-block; background: #2c3e50; color: var(--primary); padding: 4px 10px; border-radius: 12px; font-size: 0.8em; margin: 3px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); }
+        .options-grid { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 10px; }
+        .opt-btn { background: var(--card); color: var(--text); border: 2px solid var(--border); padding: 12px; border-radius: 10px; font-size: 1em; cursor: pointer; }
         .opt-btn.correct { background: var(--success) !important; color: white; border-color: var(--success); }
         .opt-btn.wrong { background: var(--danger) !important; color: white; border-color: var(--danger); }
-
-        .main-btn { background: var(--primary); color: #fff; border: none; padding: 16px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; margin-top: 15px; }
-        .json-btn { background: #6c757d; color: white; border: none; padding: 10px; border-radius: 8px; font-size: 0.8em; cursor: pointer; font-weight: 600; flex: 1; }
-        .btn-del { position: absolute; top: 15px; right: 15px; background: none; border: none; color: #ddd; cursor: pointer; }
+        
         .section { display: none; } .section.active { display: block; }
-        #install-prompt { display: none; background: #333; color: white; padding: 15px; position: fixed; bottom: 20px; left: 20px; right: 20px; border-radius: 12px; z-index: 1000; justify-content: space-between; align-items: center; }
     </style>
 </head>
 <body>
 
-<div id="install-prompt">
-    <span>Instalar Mandarim Master?</span>
-    <button onclick="installApp()" style="background:var(--success); color:white; border:none; padding:8px 15px; border-radius:8px; font-weight:bold;">Instalar</button>
+<div id="splash">
+    <img src="https://cdn-icons-png.flaticon.com/512/3898/3898098.png" alt="Icon">
+    <h2>MANDARIM</h2>
 </div>
 
 <div class="container">
+    <div style="background: var(--card); padding:10px 15px; border-radius:12px; margin-bottom:15px; display:flex; align-items:center; gap:10px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+        <span>🎙️</span><select id="voice-select" style="margin:0"></select>
+    </div>
+
     <div class="tabs">
-        <button class="tab-btn active" onclick="showSection('library')">Biblioteca</button>
-        <button class="tab-btn" onclick="showSection('create')">Adicionar</button>
+        <button class="tab-btn active" onclick="showSection('library')">📚 BIBLIOTECA</button>
+        <button class="tab-btn" onclick="showSection('create')">➕ NOVO</button>
     </div>
 
     <div id="library" class="section active">
-        <button class="main-btn" style="background:var(--warning); margin-bottom:20px; font-size: 0.9em;" onclick="requestNotificationPermission()">🔔 Ativar Notificações de Estudo</button>
+        <div class="dash-grid">
+            <div class="dash-item" style="background: #3498db;"><span class="dash-label">Total</span><span id="dash-total" class="dash-value">0</span></div>
+            <div class="dash-item" style="background: #f39c12;"><span class="dash-label">Revisar</span><span id="dash-review" class="dash-value">0</span></div>
+            <div class="dash-item" style="background: #e74c3c;"><span class="dash-label">Streak</span><span id="dash-streak" class="dash-value">0</span></div>
+            <div class="dash-item" style="background: #27ae60;"><span class="dash-label">Master</span><span id="dash-mastery" class="dash-value">0%</span></div>
+        </div>
+
+        <div class="hsk-section">
+            <h4 style="margin:0 0 10px 0; font-size:0.85em;">🏆 DOMÍNIO HSK (PALAVRAS MESTRES)</h4>
+            <div id="hsk-bars"></div>
+        </div>
+
         <div id="deck-list"></div>
-        
-        <div style="margin-top: 30px; border-top: 1px solid #ddd; padding-top: 20px; text-align: center;">
-            <button class="main-btn" style="background: #1a1d28; margin-bottom:10px" onclick="generateSyncLink()">🔗 Sincronizar via Link PRO</button>
-            <div style="display:flex; gap:10px;">
-                <button class="json-btn" onclick="exportJSON()">📤 Exportar JSON</button>
-                <button class="json-btn" onclick="document.getElementById('fileIn').click()">📥 Importar JSON</button>
+
+        <div class="curve-section" id="curve-info" style="display:none">
+            <h4 style="margin:0 0 10px 0;">📊 Baralho: <span id="current-deck-name" style="color:var(--primary)"></span></h4>
+            <div class="curve-grid">
+                <div class="curve-box" onclick="showLevelWords(0)"><span class="lvl-num" id="l0">0</span><span class="lvl-desc">Novo</span></div>
+                <div class="curve-box" onclick="showLevelWords(1)"><span class="lvl-num" id="l1">0</span><span class="lvl-desc">10m</span></div>
+                <div class="curve-box" onclick="showLevelWords(2)"><span class="lvl-num" id="l2">0</span><span class="lvl-desc">1d</span></div>
+                <div class="curve-box" onclick="showLevelWords(3)"><span class="lvl-num" id="l3">0</span><span class="lvl-desc">2d</span></div>
+                <div class="curve-box" onclick="showLevelWords(4)"><span class="lvl-num" id="l4">0</span><span class="lvl-desc">5d</span></div>
+                <div class="curve-box" onclick="showLevelWords(6)"><span class="lvl-num" id="l7">0</span><span class="lvl-desc">Mestre</span></div>
+            </div>
+            <div id="words-preview" style="margin-top:10px; border-top:1px solid var(--border); padding-top:10px;"></div>
+        </div>
+
+        <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 5px;">
+            <button class="main-btn" style="background:#1a1d28; border-bottom-color: rgba(255,255,255,0.1);" onclick="generateSyncLink()">🔗 Sincronizar via Link</button>
+            <button class="main-btn" style="background:#f39c12" onclick="requestNotificationPermission()">🔔 Notificações Inteligentes</button>
+            <div style="display:flex; gap:5px;">
+                <button class="main-btn" style="background:#6c757d; font-size:0.8em" onclick="exportJSON()">📤 Exportar</button>
+                <button class="main-btn" style="background:#6c757d; font-size:0.8em" onclick="document.getElementById('fileIn').click()">📥 Importar</button>
             </div>
             <input type="file" id="fileIn" style="display:none" onchange="importJSON(event)">
         </div>
     </div>
 
     <div id="create" class="section">
-        <div class="study-box">
+        <div class="deck-card">
             <h3>Novo Baralho</h3>
             <input type="text" id="deck-name" placeholder="Nome do Baralho">
-            <textarea id="bulk-input" placeholder="Hanzi;Pinyin - Tradução (Uma por linha)" style="width:100%; height:120px; margin-top:10px; padding:10px; border-radius:12px; border:2px solid #ddd;"></textarea>
-            <button class="main-btn" onclick="saveDeck()">Salvar Baralho</button>
+            <textarea id="bulk-input" placeholder="Hanzi;Pinyin - Tradução" style="height:150px"></textarea>
+            <button class="main-btn" onclick="saveDeck()">Salvar</button>
+        </div>
+    </div>
+
+    <div id="edit-mode" class="section">
+        <div class="deck-card">
+            <h3>Adicionar Palavras</h3>
+            <textarea id="edit-input" style="height:150px;" placeholder="Hanzi;Pinyin - Tradução"></textarea>
+            <button class="main-btn" onclick="confirmAddWords()" style="background:var(--success)">Confirmar</button>
+            <button class="main-btn" onclick="showSection('library')" style="background:#6c757d">Voltar</button>
         </div>
     </div>
 
     <div id="study-area" class="section">
-        <div class="study-box">
-            <div style="font-size:0.8em; margin-bottom:10px; color: #888;" id="prog-text">0/0</div>
-            <div class="term" id="display-term">...</div>
+        <div class="deck-card" style="text-align:center; min-height:400px; display:flex; flex-direction:column; justify-content:center;">
+            <div id="prog-text" style="font-weight:bold; font-size:0.8em">0/0</div>
+            <div id="display-term" style="font-size:2.8em; font-weight:800; margin:25px 0; cursor:pointer" onclick="speakCurrent()">...</div>
             <div id="interaction-zone"></div>
-            <div id="feedback" style="margin-top:15px; font-weight:bold; min-height: 25px;"></div>
-            <button id="next-btn" class="main-btn" style="display:none" onclick="processNext()">Próximo (Enter)</button>
+            <div id="feedback" style="margin-top:20px; min-height:25px"></div>
+            <button id="next-btn" class="main-btn" style="display:none; background:var(--success); margin-top:15px" onclick="processNext()">Próximo (Enter)</button>
         </div>
     </div>
 </div>
 
 <script>
+    /* 1. HSK FILTRO REAL (Base Expandida) */
+    const HSK_DB = {
+        hsk1: "我你他是的人不在有这中会为上大个地来出时国和也子到说要下".split(''),
+        hsk2: "吧白百报过还近进就觉得看考可以块乐离两路卖慢忙每妹妹门面名".split(''),
+        hsk3: "阿啊矮安静把搬办法办公室半帮忙包饱方准备差最后虽然经常愿意".split(''),
+        hsk4: "爱情安排安全暗示按照百分之棒抱歉保证报名抱倍本来笨比如毕业".split('')
+    };
+
+    function getHSKLevel(word) {
+        if(HSK_DB.hsk1.some(c => word.includes(c))) return 'hsk1';
+        if(HSK_DB.hsk2.some(c => word.includes(c))) return 'hsk2';
+        if(HSK_DB.hsk3.some(c => word.includes(c))) return 'hsk3';
+        if(HSK_DB.hsk4.some(c => word.includes(c))) return 'hsk4';
+        return '';
+    }
+
+    window.addEventListener('load', () => { 
+        setTimeout(() => { document.getElementById('splash').style.opacity = '0'; setTimeout(() => document.getElementById('splash').style.display = 'none', 300); }, 300); 
+        updateStreak();
+    });
+
+    /* 3. UX: STREAK VISUAL */
+    function updateStreak() {
+        const stats = JSON.parse(localStorage.getItem('mandarim_stats')) || { lastDate: '', streak: 0 };
+        const today = new Date().toLocaleDateString();
+        const yesterday = new Date(Date.now() - 86400000).toLocaleDateString();
+        
+        if (stats.lastDate === yesterday) stats.streak++;
+        else if (stats.lastDate !== today) stats.streak = 1;
+        
+        stats.lastDate = today;
+        localStorage.setItem('mandarim_stats', JSON.stringify(stats));
+        
+        const streakEl = document.getElementById('dash-streak');
+        streakEl.innerText = stats.streak;
+        if (stats.streak > 0) streakEl.classList.add('active-streak');
+    }
+
     const STORAGE_KEY = 'ebbinghaus_vFinal_Full';
-    const INTERVALS = [0, 1, 10, 1440, 2880, 7200, 21600, 43200];
+    /* 2. REFINAMENTO EBBINGHAUS (Curva de Esquecimento) */
+    const INTERVALS = [0, 10, 1440, 2880, 7200, 21600, 43200, 86400]; // em minutos
     let decks = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-    let curSession = { deckIdx: 0, cards: [], cur: 0, mode: 'typing', answered: false };
-    let deferredPrompt;
+    let curSession = { deckIdx: 0, cards: [], cur: 0, mode: '', subMode: '', answered: false };
+    let voices = [];
 
-    // --- PWA & NOTIFICAÇÕES ---
-    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
-    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; document.getElementById('install-prompt').style.display = 'flex'; });
-    async function installApp() { if (deferredPrompt) { deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if (outcome === 'accepted') document.getElementById('install-prompt').style.display = 'none'; } }
-    function requestNotificationPermission() { Notification.requestPermission().then(p => { if (p === 'granted') new Notification("Mandarim Master", { body: "Pronto! Avisaremos você das revisões." }); }); }
-
-    // --- SINCRONIZAÇÃO ---
-    function generateSyncLink() {
-        const compressed = LZString.compressToEncodedURIComponent(JSON.stringify(decks));
-        const url = window.location.origin + window.location.pathname + '?sync=' + compressed;
-        navigator.clipboard.writeText(url).then(() => alert("Link copiado! Abra no outro dispositivo."));
+    function loadVoices() { 
+        voices = window.speechSynthesis.getVoices(); 
+        document.getElementById('voice-select').innerHTML = voices.filter(v => v.lang.includes('zh')).map(v => `<option value="${v.name}">${v.name}</option>`).join(''); 
     }
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+    function speak(t) { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(t); m.voice = voices.find(v => v.name === document.getElementById('voice-select').value); m.lang = 'zh-CN'; window.speechSynthesis.speak(m); }
+    function speakCurrent() { if(curSession.cards[curSession.cur]) speak(curSession.cards[curSession.cur].front); }
 
-    function checkSyncURL() {
-        const params = new URLSearchParams(window.location.search);
-        const data = params.get('sync');
-        if (data && confirm("🔄 Sincronização detectada! Importar dados?")) {
-            const decoded = LZString.decompressFromEncodedURIComponent(data);
-            if (decoded) { decks = JSON.parse(decoded); localStorage.setItem(STORAGE_KEY, decoded); window.history.replaceState({}, '', window.location.pathname); renderDecks(); }
-        }
-    }
-
-    function exportJSON() {
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(decks));
-        const a = document.createElement('a'); a.setAttribute("href", dataStr); a.setAttribute("download", "backup_mandarim.json"); a.click();
-    }
-
-    function importJSON(e) {
-        const reader = new FileReader();
-        reader.onload = (ev) => { decks = JSON.parse(ev.target.result); localStorage.setItem(STORAGE_KEY, ev.target.result); renderDecks(); alert("✅ Importado!"); };
-        reader.readAsText(e.target.files[0]);
-    }
-
-    // --- CORE ---
     function showSection(id) { document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); if(id === 'library') renderDecks(); }
+    
+    function renderDecks() {
+        const container = document.getElementById('deck-list'); container.innerHTML = '';
+        let tA = 0, tR = 0, tM = 0; const now = Date.now();
+        let hskM = { hsk1: 0, hsk2: 0, hsk3: 0, hsk4: 0 };
 
-    function saveDeck() {
-        const name = document.getElementById('deck-name').value;
-        const text = document.getElementById('bulk-input').value;
-        if(!name || !text) return;
-        const cards = text.trim().split('\n').map(l => {
-            const [f, b] = l.split(';');
-            return f && b ? { front: f.trim(), back: b.trim(), level: 0, nextReview: Date.now() } : null;
-        }).filter(c => c);
-        decks.push({ name, cards });
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(decks));
-        showSection('library');
+        decks.forEach((d, i) => {
+            const rev = d.cards.filter(c => c.level < 6 && (c.nextReview || 0) <= now).length;
+            const mas = d.cards.filter(c => c.level >= 6).length;
+            const perc = d.cards.length ? Math.round((mas / d.cards.length) * 100) : 0;
+            d.cards.forEach(c => { if(c.level >= 6) { const lvl = getHSKLevel(c.front); if(lvl) hskM[lvl]++; } });
+            tA += d.cards.length; tR += rev; tM += mas;
+            container.innerHTML += `<div class="deck-card" onclick="updateCurveDisplay(${i})">
+                <button onclick="deleteDeck(${i}, event)" style="position:absolute;top:10px;right:10px;border:none;background:none;color:#ccc;">✖</button>
+                <strong class="deck-title">${d.name}</strong><div class="prog-bg"><div class="prog-fill" style="width:${perc}%"></div></div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
+                    <button class="main-btn" style="font-size:0.6em" onclick="startStudy(${i},'typing','visual',event)">⌨ LER</button>
+                    <button class="main-btn" style="font-size:0.6em;background:#8e44ad" onclick="startStudy(${i},'choice','visual',event)">🔘 LER</button>
+                    <button class="main-btn" style="font-size:0.6em;background:#2c3e50" onclick="startStudy(${i},'typing','audio',event)">🎧 OUVIR</button>
+                    <button class="main-btn" style="font-size:0.6em;background:#d35400" onclick="startStudy(${i},'choice','audio',event)">🔊 OUVIR</button>
+                </div><button class="main-btn" style="font-size:0.6em;background:#2c3e50;color:var(--text);margin-top:5px; border-bottom-color: rgba(255,255,255,0.1);" onclick="openAddWords(${i}, event)">+ ADICIONAR PALAVRAS</button></div>`;
+        });
+
+        const hskContainer = document.getElementById('hsk-bars'); hskContainer.innerHTML = '';
+        ['hsk1','hsk2','hsk3','hsk4'].forEach(lvl => {
+            const p = Math.min(Math.round((hskM[lvl] / HSK_DB[lvl].length) * 100), 100);
+            hskContainer.innerHTML += `<div class="hsk-bar-container"><div class="hsk-meta"><span>${lvl.toUpperCase()}</span><span>${p}%</span></div><div class="prog-bg" style="margin:0;height:6px;"><div class="prog-fill ${lvl}" style="width:${p}%"></div></div></div>`;
+        });
+
+        document.getElementById('dash-total').innerText = tA; document.getElementById('dash-review').innerText = tR; document.getElementById('dash-mastery').innerText = tA ? Math.round((tM/tA)*100)+"%" : "0%";
     }
 
-    function renderDecks() {
-        const container = document.getElementById('deck-list');
-        container.innerHTML = '';
-        const now = Date.now();
-
-        decks.map((d, i) => {
-            const rev = d.cards.filter(c => c.level > 0 && c.level < 7 && c.nextReview <= now).length;
-            const mas = d.cards.filter(c => c.level >= 7).length;
-            const perc = d.cards.length > 0 ? Math.round((mas / d.cards.length) * 100) : 0;
-            return { ...d, i, rev, mas, perc };
-        }).sort((a,b) => b.rev - a.rev).forEach(d => {
-            container.innerHTML += `
-                <div class="deck-card">
-                    <button class="btn-del" onclick="deleteDeck(${d.i})">✖</button>
-                    <strong style="font-size: 1.2em;">${d.name}</strong>
-                    
-                    <div class="prog-bg">
-                        <div class="prog-fill" style="width:${d.perc}%"></div>
-                    </div>
-
-                    <div class="stats-grid">
-                        <div class="stat" style="background:#3498db">
-                            <span style="display:block; font-size:0.7em; opacity:0.9">PALAVRAS</span>
-                            ${d.cards.length}
-                        </div>
-                        <div class="stat" style="background:var(--warning)">
-                            <span style="display:block; font-size:0.7em; opacity:0.9">REVISAR</span>
-                            ${d.rev}
-                        </div>
-                        <div class="stat" style="background:var(--success)">
-                            <span style="display:block; font-size:0.7em; opacity:0.9">DOMÍNIO</span>
-                            ${d.perc}%
-                        </div>
-                    </div>
-
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px">
-                        <button class="main-btn" style="margin:0; font-size:0.9em; padding:12px" onclick="startStudy(${d.i}, 'typing')">⌨ Escrever</button>
-                        <button class="main-btn" style="margin:0; font-size:0.9em; padding:12px; background:#8e44ad" onclick="startStudy(${d.i}, 'choice')">🔘 Escolha</button>
-                    </div>
-                </div>`;
+    function updateCurveDisplay(idx) {
+        activeCurveIdx = idx; document.getElementById('curve-info').style.display = 'block';
+        document.getElementById('current-deck-name').innerText = decks[idx].name;
+        [0,1,2,3,4,6].forEach(l => {
+            const count = decks[idx].cards.filter(c => (l===6?c.level>=6:c.level===l)).length;
+            document.getElementById('l'+(l===6?7:l)).innerText = count;
         });
     }
 
-    function startStudy(i, mode) {
-        const due = decks[i].cards.filter(c => c.nextReview <= Date.now() || c.level === 0);
-        if(!due.length) return alert("Baralho em dia!");
-        // ALEATORIEDADE (SHUFFLE)
-        curSession = { 
-            deckIdx: i, 
-            mode: mode, 
-            cards: due.sort(() => Math.random() - 0.5).slice(0, 15), 
-            cur: 0, 
-            answered: false 
-        };
-        showSection('study-area');
-        renderCard();
+    function showLevelWords(lvl) {
+        const words = decks[activeCurveIdx].cards.filter(c => (lvl===7?c.level>=6:c.level===lvl));
+        document.getElementById('words-preview').innerHTML = words.map(w => {
+            const hsk = getHSKLevel(w.front);
+            return `<span class="word-pill" onclick="speak('${w.front}')">${w.front} ${hsk ? `<span class="hsk-tag ${hsk}">${hsk.toUpperCase()}</span>` : ''}</span>`;
+        }).join('');
+    }
+
+    function startStudy(i, mode, subMode, e) {
+        if(e) e.stopPropagation();
+        const due = decks[i].cards.filter(c => (c.nextReview || 0) <= Date.now() || c.level === 0);
+        if(!due.length) return alert("Em dia!");
+        curSession = { deckIdx: i, mode, subMode, cards: due.sort(() => Math.random() - 0.5).slice(0, 15), cur: 0, answered: false };
+        showSection('study-area'); renderCard();
     }
 
     function renderCard() {
-        const c = curSession.cards[curSession.cur];
-        const display = c.back.includes('-') ? c.back.split('-')[1].trim() : c.back;
-        document.getElementById('display-term').innerText = display;
+        const c = curSession.cards[curSession.cur]; const display = document.getElementById('display-term');
+        if(curSession.subMode === 'audio') { display.innerText = "🔊"; speak(c.front); } 
+        else { display.innerText = c.back.includes('-') ? c.back.split('-')[1].trim() : c.back; }
         document.getElementById('prog-text').innerText = `${curSession.cur + 1} / ${curSession.cards.length}`;
-        document.getElementById('feedback').innerText = '';
-        document.getElementById('next-btn').style.display = 'none';
-        curSession.answered = false;
-
+        document.getElementById('feedback').innerText = ''; document.getElementById('next-btn').style.display = 'none'; curSession.answered = false;
         const zone = document.getElementById('interaction-zone');
-        if (curSession.mode === 'typing') {
-            zone.innerHTML = `<input type="text" id="type-in" autocomplete="off" onkeypress="handleKey(event)">`;
-            setTimeout(() => document.getElementById('type-in').focus(), 50);
-        } else {
-            // MÚLTIPLA ESCOLHA
-            const options = generateOptions(c.front);
-            zone.innerHTML = `<div class="options-grid">${options.map(opt => `<button class="opt-btn" onclick="checkChoice(this, '${opt}')">${opt}</button>`).join('')}</div>`;
-        }
+        if(curSession.mode === 'typing') { zone.innerHTML = `<input type="text" id="type-in" placeholder="Hanzi..." autocomplete="off">`; document.getElementById('type-in').addEventListener('keypress', (e) => {if(e.key==='Enter') handleKey(e);}); setTimeout(()=>document.getElementById('type-in').focus(),150); }
+        else { const opts = [c.front, ...decks[curSession.deckIdx].cards.map(x=>x.front).filter(f=>f!==c.front).sort(()=>Math.random()-0.5).slice(0,3)].sort(()=>Math.random()-0.5); zone.innerHTML = `<div class="options-grid">${opts.map(o => `<button class="opt-btn" onclick="checkChoice(this,'${o}')">${o}</button>`).join('')}</div>`; }
     }
 
-    function generateOptions(correct) {
-        const allCards = decks[curSession.deckIdx].cards.map(c => c.front);
-        let distractors = allCards.filter(f => f !== correct).sort(() => Math.random() - 0.5).slice(0, 3);
-        return [correct, ...distractors].sort(() => Math.random() - 0.5);
+    function checkChoice(btn, val) { if(curSession.answered) return; const correct = curSession.cards[curSession.cur].front; if(val === correct) { btn.classList.add('correct'); handleResult(true); } else { btn.classList.add('wrong'); handleResult(false); } }
+    
+    function handleKey(e) { 
+        if(!curSession.answered) handleResult(e.target.value.trim() === curSession.cards[curSession.cur].front); 
     }
 
-    function checkChoice(btn, val) {
-        if (curSession.answered) return;
-        const correct = curSession.cards[curSession.cur].front;
-        curSession.answered = true;
-        if (val === correct) {
-            btn.classList.add('correct');
-            handleResult(true);
-        } else {
-            btn.classList.add('wrong');
-            document.querySelectorAll('.opt-btn').forEach(b => { if(b.innerText === correct) b.classList.add('correct'); });
-            handleResult(false);
-        }
-    }
-
-    function handleKey(e) { if (e.key === 'Enter' && !curSession.answered) { const val = e.target.value.trim(); handleResult(val === curSession.cards[curSession.cur].front); } }
-
+    /* 2. REFINAMENTO EBBINGHAUS (Lógica de Penalidade e Bônus) */
     function handleResult(isCorrect) {
-        curSession.answered = true;
-        const c = curSession.cards[curSession.cur];
-        const fb = document.getElementById('feedback');
+        curSession.answered = true; const c = curSession.cards[curSession.cur];
+        
         if (isCorrect) {
-            fb.innerText = "✅ Excelente!"; fb.style.color = "var(--success)";
-            c.level = Math.min(c.level + 1, 7);
+            c.level = (c.level || 0) + 1;
         } else {
-            fb.innerText = "❌ Resposta: " + c.front; fb.style.color = "var(--danger)";
-            c.level = Math.max(c.level - 1, 1);
+            // Penalidade de Ebbinghaus: Erros reduzem 2 níveis para reforçar retenção
+            c.level = Math.max((c.level || 0) - 2, 0); 
         }
-        c.nextReview = Date.now() + (INTERVALS[c.level] * 60000);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(decks));
-        document.getElementById('next-btn').style.display = 'block';
+        
+        c.nextReview = Date.now() + (INTERVALS[Math.min(c.level, 7)] * 60000);
+        
+        const feedback = document.getElementById('feedback');
+        feedback.innerText = isCorrect ? "✅ Correto!" : "❌ Resposta: " + c.front;
+        feedback.style.color = isCorrect ? "var(--success)" : "var(--danger)";
+        
+        save(); 
+        document.getElementById('next-btn').style.display = 'block'; 
+        speak(c.front);
     }
 
-    function processNext() { curSession.cur++; if (curSession.cur < curSession.cards.length) renderCard(); else showSection('library'); }
-    function deleteDeck(i) { if(confirm("Apagar baralho?")) { decks.splice(i, 1); localStorage.setItem(STORAGE_KEY, JSON.stringify(decks)); renderDecks(); } }
+    function processNext() { curSession.cur++; if(curSession.cur < curSession.cards.length) renderCard(); else showSection('library'); }
+    function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(decks)); }
+    function deleteDeck(i, e) { e.stopPropagation(); if(confirm("Apagar?")) { decks.splice(i, 1); save(); renderDecks(); } }
+    function openAddWords(i, e) { e.stopPropagation(); editingDeckIdx = i; showSection('edit-mode'); }
+    function confirmAddWords() { const t = document.getElementById('edit-input').value; if(t) { decks[editingDeckIdx].cards.push(...t.trim().split('\n').map(l => { const [f, b] = l.split(';'); return f && b ? { front: f.trim(), back: b.trim(), level: 0, nextReview: 0 } : null; }).filter(c => c)); save(); showSection('library'); } }
+    function saveDeck() { const n = document.getElementById('deck-name').value; const t = document.getElementById('bulk-input').value; if(n && t) { decks.push({ name: n, cards: t.trim().split('\n').map(l => { const [f, b] = l.split(';'); return f && b ? { front: f.trim(), back: b.trim(), level: 0, nextReview: 0 } : null; }).filter(c => c) }); save(); showSection('library'); } }
+    
+    function generateSyncLink() { const c = LZString.compressToEncodedURIComponent(JSON.stringify(decks)); const u = window.location.origin + window.location.pathname + '?sync=' + c; navigator.clipboard.writeText(u).then(() => alert("Link copiado!")); }
+    function checkSyncURL() { const p = new URLSearchParams(window.location.search); const s = p.get('sync'); if(s) { const d = LZString.decompressFromEncodedURIComponent(s); if(d && confirm("Importar dados?")) { decks = JSON.parse(d); save(); window.history.replaceState({}, '', window.location.pathname); renderDecks(); } } }
+    function exportJSON() { const d = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(decks)); const a = document.createElement('a'); a.href = d; a.download = "backup.json"; a.click(); }
+    function importJSON(e) { const r = new FileReader(); r.onload = (ev) => { decks = JSON.parse(ev.target.result); save(); renderDecks(); }; r.readAsText(e.target.files[0]); }
+    async function requestNotificationPermission() { const p = await Notification.requestPermission(); if(p === 'granted') alert("Ativadas!"); }
 
-    document.addEventListener('keydown', (e) => { if(e.key === 'Enter' && document.getElementById('next-btn').style.display === 'block') processNext(); });
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+    
+    document.addEventListener('keydown', (e) => { 
+        if(e.key === 'Enter') {
+            const nextBtn = document.getElementById('next-btn');
+            if(nextBtn.style.display === 'block') {
+                processNext();
+            }
+        }
+    });
 
-    checkSyncURL();
-    renderDecks();
+    checkSyncURL(); renderDecks(); loadVoices();
 </script>
 </body>
 </html>

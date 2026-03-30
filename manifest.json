@@ -3,8 +3,8 @@
   "short_name": "Mandarim",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#f6f7fb",
-  "theme_color": "#4255ff",
+  "background_color": "#1a1d28",
+  "theme_color": "#1a1d28",
   "icons": [
     {
       "src": "https://cdn-icons-png.flaticon.com/512/3898/3898098.png",
