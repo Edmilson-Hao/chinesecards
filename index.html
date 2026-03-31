@@ -6,73 +6,12 @@
     <title>Mandarim Master PRO</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1a1d28">
-    <style>
-        :root { 
-            --primary: #859bf5; 
-            --bg: #13151a; 
-            --card: #1e212b; 
-            --success: #2ecc71; 
-            --danger: #e74c3c; 
-            --warning: #f39c12; 
-            --text: #ecf0f1; 
-            --sub-text: #bdc3c7;
-            --border: #2c3e50;
-            --input-bg: #2c3e50;
-        }
-        
-        #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #1a1d28; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.3s ease-out; }
-        #splash img { width: 100px; height: 100px; margin-bottom: 10px; }
-        #splash h2 { color: white; font-family: sans-serif; letter-spacing: 2px; margin: 0; }
-
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); margin: 0; padding: 15px; color: var(--text); padding-bottom: 100px; }
-        .container { max-width: 600px; margin: 0 auto; }
-        
-        /* Dashboard e UX */
-        .dash-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px; }
-        .dash-item { padding: 10px 5px; border-radius: 12px; text-align: center; color: white; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
-        .dash-label { display: block; font-size: 0.55em; font-weight: bold; text-transform: uppercase; opacity: 0.9; }
-        .dash-value { font-size: 1.2em; font-weight: 800; }
-        
-        @keyframes flame {
-            0% { transform: scale(1); text-shadow: 0 0 0px orange; }
-            50% { transform: scale(1.1); text-shadow: 0 0 10px red; }
-            100% { transform: scale(1); text-shadow: 0 0 0px orange; }
-        }
-        .active-streak { animation: flame 1.5s infinite; color: #ff4500 !important; font-weight: 900; }
-
-        .hsk-section { background: var(--card); padding: 15px; border-radius: 18px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
-        .hsk-meta { display: flex; justify-content: space-between; font-size: 0.7em; font-weight: bold; margin-bottom: 2px; color: var(--sub-text); }
-        
-        .hsk1 { background: #9b59b6 !important; } .hsk2 { background: #3498db !important; } 
-        .hsk3 { background: #e67e22 !important; } .hsk4 { background: #e74c3c !important; }
-        .hsk-tag { font-size: 0.6em; padding: 2px 5px; border-radius: 4px; margin-left: 4px; color: white; vertical-align: middle; font-weight: bold; text-transform: uppercase; }
-
-        .deck-card { background: var(--card); padding: 18px; border-radius: 18px; margin-bottom: 15px; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border-left: 5px solid var(--primary); }
-        .deck-title { color: var(--text); font-weight: bold; }
-        .prog-bg { width: 100%; background: #2c3e50; height: 8px; border-radius: 4px; margin: 10px 0; overflow: hidden; }
-        .prog-fill { height: 100%; background: linear-gradient(90deg, #2ecc71, #27ae60); transition: 0.5s; }
-        
-        .curve-section { background: var(--card); border-radius: 18px; padding: 15px; margin-top: 20px; border: 1px solid var(--border); }
-        .curve-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; margin-top: 10px; }
-        .curve-box { background: #2c3e50; border: 1px solid var(--border); padding: 5px; border-radius: 10px; text-align: center; cursor: pointer; }
-        .lvl-num { display: block; font-weight: 800; font-size: 0.9em; color: var(--primary); }
-        .lvl-desc { font-size: 0.5em; color: var(--sub-text); font-weight: bold; }
-
-        .tabs { display: flex; gap: 8px; margin-bottom: 15px; }
-        .tab-btn { flex: 1; padding: 12px; border: none; background: var(--card); color: var(--text); border-radius: 10px; font-weight: bold; cursor: pointer; }
-        .tab-btn.active { background: var(--primary); color: white; }
-        
-        .main-btn { background: var(--primary); color: #fff; border: none; padding: 12px; border-radius: 10px; font-weight: bold; width: 100%; cursor: pointer; border-bottom: 3px solid rgba(0,0,0,0.3); margin-bottom: 5px; }
-        input, textarea, select { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid var(--border); background-color: var(--input-bg); color: var(--text); font-size: 1em; box-sizing: border-box; margin-bottom: 10px; }
-
-        .word-pill { display: inline-block; background: #2c3e50; color: var(--primary); padding: 4px 10px; border-radius: 12px; font-size: 0.8em; margin: 3px; font-weight: 600; border: 1px solid var(--border); }
-        .options-grid { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 10px; }
-        .opt-btn { background: var(--card); color: var(--text); border: 2px solid var(--border); padding: 12px; border-radius: 10px; font-size: 1em; cursor: pointer; }
-        .opt-btn.correct { background: var(--success) !important; color: white; }
-        .opt-btn.wrong { background: var(--danger) !important; color: white; }
-        
-        .section { display: none; } .section.active { display: block; }
-    </style>
+    
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Bibliotecas de compressão -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsoncrush@1.1.8/jsoncrush.min.js"></script>
 </head>
 <body>
 
@@ -82,8 +21,9 @@
 </div>
 
 <div class="container">
-    <div style="background: var(--card); padding:10px 15px; border-radius:12px; margin-bottom:15px; display:flex; align-items:center; gap:10px;">
-        <span>🎙️</span><select id="voice-select" style="margin:0"></select>
+    <div class="voice-bar">
+        <span>🎙️</span>
+        <select id="voice-select"></select>
     </div>
 
     <div class="tabs">
@@ -100,32 +40,19 @@
         </div>
 
         <div class="hsk-section">
-            <h4 style="margin:0 0 10px 0; font-size:0.85em;">🏆 DOMÍNIO HSK</h4>
+            <h4>🏆 DOMÍNIO HSK</h4>
             <div id="hsk-bars"></div>
         </div>
 
         <div id="deck-list"></div>
 
-        <div class="curve-section" id="curve-info" style="display:none">
-            <h4 style="margin:0 0 10px 0;">📊 Baralho: <span id="current-deck-name" style="color:var(--primary)"></span></h4>
-            <div class="curve-grid">
-                <div class="curve-box" onclick="showLevelWords(0)"><span class="lvl-num" id="l0">0</span><span class="lvl-desc">Novo</span></div>
-                <div class="curve-box" onclick="showLevelWords(1)"><span class="lvl-num" id="l1">0</span><span class="lvl-desc">10m</span></div>
-                <div class="curve-box" onclick="showLevelWords(2)"><span class="lvl-num" id="l2">0</span><span class="lvl-desc">1d</span></div>
-                <div class="curve-box" onclick="showLevelWords(3)"><span class="lvl-num" id="l3">0</span><span class="lvl-desc">2d</span></div>
-                <div class="curve-box" onclick="showLevelWords(4)"><span class="lvl-num" id="l4">0</span><span class="lvl-desc">5d</span></div>
-                <div class="curve-box" onclick="showLevelWords(6)"><span class="lvl-num" id="l7">0</span><span class="lvl-desc">Mestre</span></div>
-            </div>
-            <div id="words-preview" style="margin-top:10px;"></div>
-        </div>
-
-        <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 5px;">
-            <button class="main-btn" style="background:#1a1d28;" onclick="generateSyncCode()">🔗 Gerar Código de Sync</button>
-            <button class="main-btn" style="background:#4a5568;" onclick="importViaCode()">📥 Receber via Código</button>
-            <button class="main-btn" style="background:#f39c12" onclick="requestNotificationPermission()">🔔 Notificações Inteligentes</button>
-            <div style="display:flex; gap:5px;">
-                <button class="main-btn" style="background:#6c757d; font-size:0.8em" onclick="exportJSON()">📤 Exportar JSON</button>
-                <button class="main-btn" style="background:#6c757d; font-size:0.8em" onclick="document.getElementById('fileIn').click()">📥 Importar JSON</button>
+        <div class="actions">
+            <button class="main-btn" onclick="generateSyncCode()">🔗 Gerar Código de Sync</button>
+            <button class="main-btn" onclick="importViaCode()">📥 Receber via Código</button>
+            <button class="main-btn" onclick="requestNotificationPermission()">🔔 Notificações</button>
+            <div class="btn-group">
+                <button class="main-btn secondary" onclick="exportJSON()">📤 Exportar JSON</button>
+                <button class="main-btn secondary" onclick="document.getElementById('fileIn').click()">📥 Importar JSON</button>
             </div>
             <input type="file" id="fileIn" style="display:none" onchange="importJSON(event)">
         </div>
@@ -135,280 +62,22 @@
         <div class="deck-card">
             <h3>Novo Baralho</h3>
             <input type="text" id="deck-name" placeholder="Nome do Baralho">
-            <textarea id="bulk-input" placeholder="Hanzi;Pinyin - Tradução" style="height:150px"></textarea>
-            <button class="main-btn" onclick="saveDeck()">Salvar</button>
-        </div>
-    </div>
-
-    <div id="edit-mode" class="section">
-        <div class="deck-card">
-            <h3>Adicionar Palavras</h3>
-            <textarea id="edit-input" style="height:150px;" placeholder="Hanzi;Pinyin - Tradução"></textarea>
-            <button class="main-btn" onclick="confirmAddWords()" style="background:var(--success)">Confirmar</button>
-            <button class="main-btn" onclick="showSection('library')" style="background:#6c757d">Voltar</button>
+            <textarea id="bulk-input" placeholder="Hanzi;Pinyin - Tradução" rows="8"></textarea>
+            <button class="main-btn" onclick="saveDeck()">Salvar Baralho</button>
         </div>
     </div>
 
     <div id="study-area" class="section">
-        <div class="deck-card" style="text-align:center; min-height:400px; display:flex; flex-direction:column; justify-content:center;">
-            <div id="prog-text" style="font-weight:bold; font-size:0.8em">0/0</div>
-            <div id="display-term" style="font-size:2.8em; font-weight:800; margin:25px 0; cursor:pointer" onclick="speakCurrent()">...</div>
+        <div class="deck-card study-card">
+            <div id="prog-text" class="progress-text">0/0</div>
+            <div id="display-term" class="term" onclick="speakCurrent()">...</div>
             <div id="interaction-zone"></div>
-            <div id="feedback" style="margin-top:20px; min-height:25px"></div>
-            <button id="next-btn" class="main-btn" style="display:none; background:var(--success); margin-top:15px" onclick="processNext()">Próximo (Enter)</button>
+            <div id="feedback" class="feedback"></div>
+            <button id="next-btn" class="main-btn success-btn" onclick="processNext()">Próximo (Enter)</button>
         </div>
     </div>
 </div>
 
-<script>
-    // Carta na Manga 1: Compressão Nativa com Dicionário de Redução
-    async function compress(string) {
-        // Reduzimos o JSON ao máximo antes de comprimir
-        const lean = decks.map(d => [
-            d.name,
-            d.cards.map(c => [
-                c.front,
-                c.back,
-                c.level || 0,
-                c.nextReview ? Math.round((c.nextReview - Date.now()) / 3600000) : 0 // Salva em HORAS relativas
-            ])
-        ]);
-        
-        const byteArray = new TextEncoder().encode(JSON.stringify(lean));
-        const cs = new CompressionStream('gzip');
-        const writer = cs.writable.getWriter();
-        writer.write(byteArray);
-        writer.close();
-        
-        const arrayBuffer = await new Response(cs.readable).arrayBuffer();
-        
-        // Convertemos para Uint8Array para manipulação de string compacta
-        return btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
-    }
-
-    async function decompress(base64) {
-        const binary = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
-        const cs = new DecompressionStream('gzip');
-        const writer = cs.writable.getWriter();
-        writer.write(binary);
-        writer.close();
-        
-        const arrayBuffer = await new Response(cs.readable).arrayBuffer();
-        const json = new TextDecoder().decode(arrayBuffer);
-        const data = JSON.parse(json);
-        
-        // Reconstruímos o objeto original (Inflação)
-        return data.map(d => ({
-            name: d[0],
-            cards: d[1].map(c => ({
-                front: c[0],
-                back: c[1],
-                level: c[2],
-                nextReview: Date.now() + (c[3] * 3600000) // Converte horas de volta para timestamp
-            }))
-        }));
-    }
-
-    // 2. Funções de Sincronização Atualizadas
-    async function generateSyncCode() {
-        try {
-            const code = await compress();
-            await navigator.clipboard.writeText(code);
-            
-            // Exibe estatística de compressão para você ver a mágica
-            const originalSize = JSON.stringify(decks).length;
-            const compressedSize = code.length;
-            const reduction = Math.round((1 - compressedSize / originalSize) * 100);
-            
-            alert(`🚀 CÓDIGO TINY GERADO!\n\nRedução: ${reduction}%\nTamanho final: ${compressedSize} caracteres.\n\nCole no outro dispositivo.`);
-        } catch (e) {
-            alert("Erro na compressão ultra.");
-        }
-    }
-
-    async function importViaCode() {
-        const code = prompt("Cole o código TINY aqui:");
-        if (!code) return;
-        try {
-            const restoredDecks = await decompress(code.trim());
-            if (confirm(`Deseja importar ${restoredDecks.length} baralhos?`)) {
-                decks = restoredDecks;
-                save();
-                renderDecks();
-                alert("✅ Sincronizado!");
-            }
-        } catch (e) {
-            alert("Código inválido ou expirado.");
-        }
-    }
-
-    // 2. CONFIGURAÇÕES E BANCO HSK
-    const HSK_DB = {
-        hsk1: "我你他是的人不在有这中会为上大个地来出时国和也子到说要下".split(''),
-        hsk2: "吧白百报过还近进就觉得看考可以块乐离两路卖慢忙每妹妹门面名".split(''),
-        hsk3: "阿啊矮安静把搬办法办公室半帮忙包饱方准备差最后虽然经常愿意".split(''),
-        hsk4: "爱情安排安全暗示按照百分之棒抱歉保证报名抱倍本来笨比如毕业".split('')
-    };
-
-    const STORAGE_KEY = 'mandarim_ebbinghaus_final';
-    const INTERVALS = [0, 10, 1440, 2880, 7200, 21600, 43200, 86400]; // minutos
-    let decks = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-    let curSession = { deckIdx: 0, cards: [], cur: 0, mode: '', subMode: '', answered: false };
-    let voices = [];
-    let activeCurveIdx = -1;
-
-    // 3. LÓGICA DE INTERFACE E DASHBOARD
-    window.addEventListener('load', () => { 
-        setTimeout(() => { document.getElementById('splash').style.opacity = '0'; setTimeout(() => document.getElementById('splash').style.display = 'none', 300); }, 300); 
-        updateStreak();
-        renderDecks();
-    });
-
-    function showSection(id) { 
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); 
-        document.getElementById(id).classList.add('active'); 
-        if(id === 'library') renderDecks(); 
-    }
-
-    function updateStreak() {
-        const stats = JSON.parse(localStorage.getItem('mandarim_stats')) || { lastDate: '', streak: 0 };
-        const today = new Date().toLocaleDateString();
-        const yesterday = new Date(Date.now() - 86400000).toLocaleDateString();
-        if (stats.lastDate === yesterday) stats.streak++;
-        else if (stats.lastDate !== today) stats.streak = 1;
-        stats.lastDate = today;
-        localStorage.setItem('mandarim_stats', JSON.stringify(stats));
-        const el = document.getElementById('dash-streak');
-        el.innerText = stats.streak;
-        if (stats.streak > 0) el.classList.add('active-streak');
-    }
-
-    function renderDecks() {
-        const container = document.getElementById('deck-list'); container.innerHTML = '';
-        let tA = 0, tR = 0, tM = 0; const now = Date.now();
-        let hskM = { hsk1: 0, hsk2: 0, hsk3: 0, hsk4: 0 };
-
-        decks.forEach((d, i) => {
-            const rev = d.cards.filter(c => (c.level || 0) < 6 && (c.nextReview || 0) <= now).length;
-            const mas = d.cards.filter(c => (c.level || 0) >= 6).length;
-            const perc = d.cards.length ? Math.round((mas / d.cards.length) * 100) : 0;
-            d.cards.forEach(c => { if(c.level >= 6) { const lvl = getHSK(c.front); if(lvl) hskM[lvl]++; } });
-            tA += d.cards.length; tR += rev; tM += mas;
-            
-            container.innerHTML += `<div class="deck-card" onclick="updateCurveDisplay(${i})">
-                <button onclick="deleteDeck(${i}, event)" style="position:absolute;top:10px;right:10px;border:none;background:none;color:#666;">✖</button>
-                <strong class="deck-title">${d.name}</strong><div class="prog-bg"><div class="prog-fill" style="width:${perc}%"></div></div>
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
-                    <button class="main-btn" style="font-size:0.6em" onclick="startStudy(${i},'typing','visual',event)">⌨ LER</button>
-                    <button class="main-btn" style="font-size:0.6em;background:#8e44ad" onclick="startStudy(${i},'choice','visual',event)">🔘 LER</button>
-                    <button class="main-btn" style="font-size:0.6em;background:#2c3e50" onclick="startStudy(${i},'typing','audio',event)">🎧 OUVIR</button>
-                    <button class="main-btn" style="font-size:0.6em;background:#d35400" onclick="startStudy(${i},'choice','audio',event)">🔊 OUVIR</button>
-                </div><button class="main-btn" style="font-size:0.65em;background:#2c3e50;margin-top:5px;" onclick="openAddWords(${i}, event)">+ ADICIONAR</button></div>`;
-        });
-
-        document.getElementById('dash-total').innerText = tA;
-        document.getElementById('dash-review').innerText = tR;
-        document.getElementById('dash-mastery').innerText = tA ? Math.round((tM/tA)*100)+"%" : "0%";
-        renderHSK(hskM);
-    }
-
-    function renderHSK(data) {
-        const hskContainer = document.getElementById('hsk-bars'); hskContainer.innerHTML = '';
-        ['hsk1','hsk2','hsk3','hsk4'].forEach(lvl => {
-            const p = Math.min(Math.round((data[lvl] / HSK_DB[lvl].length) * 100), 100);
-            hskContainer.innerHTML += `<div class="hsk-bar-container"><div class="hsk-meta"><span>${lvl.toUpperCase()}</span><span>${p}%</span></div><div class="prog-bg" style="margin:0;height:6px;"><div class="prog-fill ${lvl}" style="width:${p}%"></div></div></div>`;
-        });
-    }
-
-    function getHSK(word) { for(let l in HSK_DB) { if(HSK_DB[l].some(c => word.includes(c))) return l; } return ''; }
-
-    // 5. MOTOR DE ESTUDO (Ebbinghaus)
-    function startStudy(i, mode, subMode, e) {
-        if(e) e.stopPropagation();
-        const due = decks[i].cards.filter(c => (c.nextReview || 0) <= Date.now() || (c.level || 0) === 0);
-        if(!due.length) return alert("Nada para revisar agora!");
-        curSession = { deckIdx: i, mode, subMode, cards: due.sort(() => Math.random() - 0.5).slice(0, 15), cur: 0, answered: false };
-        showSection('study-area'); renderCard();
-    }
-
-    function renderCard() {
-        const c = curSession.cards[curSession.cur];
-        const display = document.getElementById('display-term');
-        if(curSession.subMode === 'audio') { display.innerText = "🔊"; speak(c.front); } 
-        else { display.innerText = c.back.includes('-') ? c.back.split('-')[1].trim() : c.back; }
-        
-        document.getElementById('prog-text').innerText = `${curSession.cur + 1} / ${curSession.cards.length}`;
-        document.getElementById('feedback').innerText = ''; 
-        document.getElementById('next-btn').style.display = 'none';
-        curSession.answered = false;
-
-        const zone = document.getElementById('interaction-zone');
-        if(curSession.mode === 'typing') {
-            zone.innerHTML = `<input type="text" id="type-in" placeholder="Hanzi..." autocomplete="off">`;
-            document.getElementById('type-in').addEventListener('keypress', (e) => { if(e.key==='Enter') handleTyping(e); });
-            setTimeout(() => document.getElementById('type-in').focus(), 150);
-        } else {
-            const opts = [c.front, ...decks[curSession.deckIdx].cards.map(x=>x.front).filter(f=>f!==c.front).sort(()=>0.5-Math.random()).slice(0,3)].sort(()=>0.5-Math.random());
-            zone.innerHTML = `<div class="options-grid">${opts.map(o => `<button class="opt-btn" onclick="checkChoice(this,'${o}')">${o}</button>`).join('')}</div>`;
-        }
-    }
-
-    function checkChoice(btn, val) {
-        if(curSession.answered) return;
-        const correct = curSession.cards[curSession.cur].front;
-        if(val === correct) { btn.classList.add('correct'); handleResult(true); }
-        else { btn.classList.add('wrong'); handleResult(false); }
-    }
-
-    function handleTyping(e) { if(!curSession.answered) handleResult(e.target.value.trim() === curSession.cards[curSession.cur].front); }
-
-    function handleResult(isCorrect) {
-        curSession.answered = true;
-        const c = curSession.cards[curSession.cur];
-        if (isCorrect) c.level = (c.level || 0) + 1;
-        else c.level = Math.max((c.level || 0) - 2, 0); // Penalidade Ebbinghaus
-        
-        c.nextReview = Date.now() + (INTERVALS[Math.min(c.level, 7)] * 60000);
-        const fb = document.getElementById('feedback');
-        fb.innerText = isCorrect ? "🔥 Excelente!" : "🧊 Revisar: " + c.front;
-        fb.style.color = isCorrect ? "var(--success)" : "var(--danger)";
-        save();
-        document.getElementById('next-btn').style.display = 'block';
-        speak(c.front);
-    }
-
-    function processNext() { curSession.cur++; if(curSession.cur < curSession.cards.length) renderCard(); else showSection('library'); }
-
-    // 6. UTILITÁRIOS
-    function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(decks)); }
-    function deleteDeck(i, e) { e.stopPropagation(); if(confirm("Apagar?")) { decks.splice(i, 1); save(); renderDecks(); } }
-    function saveDeck() {
-        const n = document.getElementById('deck-name').value;
-        const t = document.getElementById('bulk-input').value;
-        if(n && t) {
-            decks.push({ name: n, cards: t.trim().split('\n').map(l => {
-                const [f, b] = l.split(';');
-                return f && b ? { front: f.trim(), back: b.trim(), level: 0, nextReview: 0 } : null;
-            }).filter(c => c) });
-            save(); showSection('library');
-        }
-    }
-
-    function loadVoices() { 
-        voices = window.speechSynthesis.getVoices(); 
-        document.getElementById('voice-select').innerHTML = voices.filter(v => v.lang.includes('zh')).map(v => `<option value="${v.name}">${v.name}</option>`).join(''); 
-    }
-    window.speechSynthesis.onvoiceschanged = loadVoices;
-    function speak(t) { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(t); m.voice = voices.find(v => v.name === document.getElementById('voice-select').value); m.lang = 'zh-CN'; window.speechSynthesis.speak(m); }
-    function speakCurrent() { if(curSession.cards[curSession.cur]) speak(curSession.cards[curSession.cur].front); }
-
-    function exportJSON() { const d = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(decks)); const a = document.createElement('a'); a.href = d; a.download = "backup.json"; a.click(); }
-    function importJSON(e) { const r = new FileReader(); r.onload = (ev) => { decks = JSON.parse(ev.target.result); save(); renderDecks(); }; r.readAsText(e.target.files[0]); }
-    async function requestNotificationPermission() { const p = await Notification.requestPermission(); if(p === 'granted') alert("Notificações Ativadas!"); }
-
-    document.addEventListener('keydown', (e) => { if(e.key === 'Enter' && document.getElementById('next-btn').style.display === 'block') processNext(); });
-
-    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
-</script>
+<script src="app.js"></script>
 </body>
 </html>

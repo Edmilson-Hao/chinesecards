@@ -1,5 +1,4 @@
-/* 4. SERVICE WORKER PARA OFFLINE (Stale-While-Revalidate) */
-const CACHE_NAME = 'mandarim-v2-ebbinghaus';
+const CACHE_NAME = 'mandarim-v3-pro';
 const ASSETS = [
   './',
   './index.html',
@@ -17,15 +16,18 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       const fetchPromise = fetch(event.request).then((networkResponse) => {
-        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, networkResponse.clone()));
+        // CORREÇÃO: Verificamos se a resposta é válida antes de clonar e cachear
+        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
+          return networkResponse;
+        }
+        const responseToCache = networkResponse.clone(); // Clona ANTES de usar
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, responseToCache);
+        });
         return networkResponse;
-      });
+      }).catch(() => cachedResponse); // Se falhar a rede, usa cache
+
       return cachedResponse || fetchPromise;
     })
   );
-});
-
-self.addEventListener('notificationclick', (event) => {
-  event.notification.close();
-  event.waitUntil(clients.openWindow('/'));
 });
