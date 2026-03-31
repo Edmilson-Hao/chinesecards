@@ -320,27 +320,26 @@
     function saveDeck() { const n = document.getElementById('deck-name').value; const t = document.getElementById('bulk-input').value; if(n && t) { decks.push({ name: n, cards: t.trim().split('\n').map(l => { const [f, b] = l.split(';'); return f && b ? { front: f.trim(), back: b.trim(), level: 0, nextReview: 0 } : null; }).filter(c => c) }); save(); showSection('library'); } }
     
     function generateSyncLink() {
-    try {
-        // Comprime os dados
-        const compressed = LZString.compressToEncodedURIComponent(JSON.stringify(decks));
-        
-        // Usamos '#' em vez de '?' para evitar que o servidor tente processar a URL longa
-        const url = window.location.origin + window.location.pathname + '#sync=' + compressed;
-        
-        if (url.length > 8000) {
-            alert("⚠️ Base de dados muito grande para um link! Use a opção 'Exportar JSON' e envie o arquivo.");
-            return;
-        }
+    // Criamos uma cópia "magra" dos dados apenas para o link
+    const leanDecks = decks.map(d => ({
+        n: d.name,
+        c: d.cards.map(c => [
+            c.front, 
+            c.back, 
+            c.level || 0, 
+            Math.round((c.nextReview || 0) / 100000) // Encurta o timestamp
+        ])
+    }));
 
-        navigator.clipboard.writeText(url).then(() => {
-            alert("🔗 Link de sincronização copiado! (Válido para bases pequenas/médias)");
-        }).catch(err => {
-            // Fallback caso o navegador bloqueie o clipboard
-            console.error('Erro ao copiar:', err);
-            alert("Erro ao copiar link automaticamente.");
-        });
-    } catch (e) {
-        alert("Erro ao gerar link. Tente exportar como arquivo.");
+    const compressed = LZString.compressToEncodedURIComponent(JSON.stringify(leanDecks));
+    const url = window.location.origin + window.location.pathname + '#s=' + compressed;
+
+    if (url.length > 8000) {
+        // Se ainda assim for grande, o último recurso é o salvamento em nuvem temporária
+        alert("A base é gigante! Gerando arquivo de transferência rápida...");
+        exportJSON(); 
+    } else {
+        navigator.clipboard.writeText(url).then(() => alert("Link otimizado copiado!"));
     }
 }
 
