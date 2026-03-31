@@ -319,8 +319,57 @@
     function confirmAddWords() { const t = document.getElementById('edit-input').value; if(t) { decks[editingDeckIdx].cards.push(...t.trim().split('\n').map(l => { const [f, b] = l.split(';'); return f && b ? { front: f.trim(), back: b.trim(), level: 0, nextReview: 0 } : null; }).filter(c => c)); save(); showSection('library'); } }
     function saveDeck() { const n = document.getElementById('deck-name').value; const t = document.getElementById('bulk-input').value; if(n && t) { decks.push({ name: n, cards: t.trim().split('\n').map(l => { const [f, b] = l.split(';'); return f && b ? { front: f.trim(), back: b.trim(), level: 0, nextReview: 0 } : null; }).filter(c => c) }); save(); showSection('library'); } }
     
-    function generateSyncLink() { const c = LZString.compressToEncodedURIComponent(JSON.stringify(decks)); const u = window.location.origin + window.location.pathname + '?sync=' + c; navigator.clipboard.writeText(u).then(() => alert("Link copiado!")); }
-    function checkSyncURL() { const p = new URLSearchParams(window.location.search); const s = p.get('sync'); if(s) { const d = LZString.decompressFromEncodedURIComponent(s); if(d && confirm("Importar dados?")) { decks = JSON.parse(d); save(); window.history.replaceState({}, '', window.location.pathname); renderDecks(); } } }
+    function generateSyncLink() {
+    try {
+        // Comprime os dados
+        const compressed = LZString.compressToEncodedURIComponent(JSON.stringify(decks));
+        
+        // Usamos '#' em vez de '?' para evitar que o servidor tente processar a URL longa
+        const url = window.location.origin + window.location.pathname + '#sync=' + compressed;
+        
+        if (url.length > 8000) {
+            alert("⚠️ Base de dados muito grande para um link! Use a opção 'Exportar JSON' e envie o arquivo.");
+            return;
+        }
+
+        navigator.clipboard.writeText(url).then(() => {
+            alert("🔗 Link de sincronização copiado! (Válido para bases pequenas/médias)");
+        }).catch(err => {
+            // Fallback caso o navegador bloqueie o clipboard
+            console.error('Erro ao copiar:', err);
+            alert("Erro ao copiar link automaticamente.");
+        });
+    } catch (e) {
+        alert("Erro ao gerar link. Tente exportar como arquivo.");
+    }
+}
+
+function checkSyncURL() {
+    // Verifica tanto na Query String (?) quanto no Fragmento (#)
+    const hash = window.location.hash;
+    const params = new URLSearchParams(window.location.search);
+    let dataRaw = params.get('sync');
+
+    if (!dataRaw && hash.includes('#sync=')) {
+        dataRaw = hash.split('#sync=')[1];
+    }
+
+    if (dataRaw) {
+        try {
+            const decompressed = LZString.decompressFromEncodedURIComponent(dataRaw);
+            if (decompressed && confirm("📥 Detectamos dados de sincronização. Deseja importar e substituir seus baralhos atuais?")) {
+                decks = JSON.parse(decompressed);
+                save();
+                // Limpa a URL para não importar toda vez que der refresh
+                window.history.replaceState({}, '', window.location.pathname);
+                renderDecks();
+                alert("✅ Dados importados com sucesso!");
+            }
+        } catch (e) {
+            alert("❌ Erro ao processar o link. O link pode estar incompleto ou corrompido.");
+        }
+    }
+}
     function exportJSON() { const d = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(decks)); const a = document.createElement('a'); a.href = d; a.download = "backup.json"; a.click(); }
     function importJSON(e) { const r = new FileReader(); r.onload = (ev) => { decks = JSON.parse(ev.target.result); save(); renderDecks(); }; r.readAsText(e.target.files[0]); }
     async function requestNotificationPermission() { const p = await Notification.requestPermission(); if(p === 'granted') alert("Ativadas!"); }
