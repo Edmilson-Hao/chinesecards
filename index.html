@@ -320,26 +320,31 @@
     function saveDeck() { const n = document.getElementById('deck-name').value; const t = document.getElementById('bulk-input').value; if(n && t) { decks.push({ name: n, cards: t.trim().split('\n').map(l => { const [f, b] = l.split(';'); return f && b ? { front: f.trim(), back: b.trim(), level: 0, nextReview: 0 } : null; }).filter(c => c) }); save(); showSection('library'); } }
     
     function generateSyncLink() {
-    // Criamos uma cópia "magra" dos dados apenas para o link
-    const leanDecks = decks.map(d => ({
-        n: d.name,
-        c: d.cards.map(c => [
-            c.front, 
-            c.back, 
-            c.level || 0, 
-            Math.round((c.nextReview || 0) / 100000) // Encurta o timestamp
-        ])
-    }));
+    try {
+        // Mapeamento ultra-compacto: [f, b, l, t]
+        // f: front, b: back, l: level, t: timestamp (reduzido)
+        const leanDecks = decks.map(d => ({
+            n: d.name,
+            c: d.cards.map(c => [
+                c.front, 
+                c.back, 
+                c.level || 0, 
+                Math.round((c.nextReview || 0) / 60000) // Salva em minutos para diminuir dígitos
+            ])
+        }));
 
-    const compressed = LZString.compressToEncodedURIComponent(JSON.stringify(leanDecks));
-    const url = window.location.origin + window.location.pathname + '#s=' + compressed;
+        const compressed = LZString.compressToEncodedURIComponent(JSON.stringify(leanDecks));
+        // Usamos '#' para garantir que o navegador não envie isso ao servidor
+        const url = window.location.origin + window.location.pathname + '#s=' + compressed;
 
-    if (url.length > 8000) {
-        // Se ainda assim for grande, o último recurso é o salvamento em nuvem temporária
-        alert("A base é gigante! Gerando arquivo de transferência rápida...");
-        exportJSON(); 
-    } else {
-        navigator.clipboard.writeText(url).then(() => alert("Link otimizado copiado!"));
+        if (url.length > 12000) { // Limite estendido para fragmentos em navegadores modernos
+            alert("⚠️ Mesmo comprimida, a base excede o limite do link. Use 'Exportar JSON'.");
+        } else {
+            navigator.clipboard.writeText(url).then(() => alert("🚀 Link ultra-comprimido copiado!"));
+        }
+    } catch (e) {
+        console.error(e);
+        alert("Erro na compressão.");
     }
 }
 
