@@ -161,14 +161,28 @@
 </div>
 
 <script>
-    // 1. FUNÇÕES DE COMPRESSÃO GZIP (Nativas)
+    // Carta na Manga 1: Compressão Nativa com Dicionário de Redução
     async function compress(string) {
-        const byteArray = new TextEncoder().encode(string);
+        // Reduzimos o JSON ao máximo antes de comprimir
+        const lean = decks.map(d => [
+            d.name,
+            d.cards.map(c => [
+                c.front,
+                c.back,
+                c.level || 0,
+                c.nextReview ? Math.round((c.nextReview - Date.now()) / 3600000) : 0 // Salva em HORAS relativas
+            ])
+        ]);
+        
+        const byteArray = new TextEncoder().encode(JSON.stringify(lean));
         const cs = new CompressionStream('gzip');
         const writer = cs.writable.getWriter();
         writer.write(byteArray);
         writer.close();
+        
         const arrayBuffer = await new Response(cs.readable).arrayBuffer();
+        
+        // Convertemos para Uint8Array para manipulação de string compacta
         return btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
     }
 
@@ -178,8 +192,54 @@
         const writer = cs.writable.getWriter();
         writer.write(binary);
         writer.close();
+        
         const arrayBuffer = await new Response(cs.readable).arrayBuffer();
-        return new TextDecoder().decode(arrayBuffer);
+        const json = new TextDecoder().decode(arrayBuffer);
+        const data = JSON.parse(json);
+        
+        // Reconstruímos o objeto original (Inflação)
+        return data.map(d => ({
+            name: d[0],
+            cards: d[1].map(c => ({
+                front: c[0],
+                back: c[1],
+                level: c[2],
+                nextReview: Date.now() + (c[3] * 3600000) // Converte horas de volta para timestamp
+            }))
+        }));
+    }
+
+    // 2. Funções de Sincronização Atualizadas
+    async function generateSyncCode() {
+        try {
+            const code = await compress();
+            await navigator.clipboard.writeText(code);
+            
+            // Exibe estatística de compressão para você ver a mágica
+            const originalSize = JSON.stringify(decks).length;
+            const compressedSize = code.length;
+            const reduction = Math.round((1 - compressedSize / originalSize) * 100);
+            
+            alert(`🚀 CÓDIGO TINY GERADO!\n\nRedução: ${reduction}%\nTamanho final: ${compressedSize} caracteres.\n\nCole no outro dispositivo.`);
+        } catch (e) {
+            alert("Erro na compressão ultra.");
+        }
+    }
+
+    async function importViaCode() {
+        const code = prompt("Cole o código TINY aqui:");
+        if (!code) return;
+        try {
+            const restoredDecks = await decompress(code.trim());
+            if (confirm(`Deseja importar ${restoredDecks.length} baralhos?`)) {
+                decks = restoredDecks;
+                save();
+                renderDecks();
+                alert("✅ Sincronizado!");
+            }
+        } catch (e) {
+            alert("Código inválido ou expirado.");
+        }
     }
 
     // 2. CONFIGURAÇÕES E BANCO HSK
@@ -261,37 +321,6 @@
     }
 
     function getHSK(word) { for(let l in HSK_DB) { if(HSK_DB[l].some(c => word.includes(c))) return l; } return ''; }
-
-    // 4. SINCRONIZAÇÃO VIA CÓDIGO (Sua Ideia)
-    async function generateSyncCode() {
-        try {
-            const lean = decks.map(d => ({
-                n: d.name,
-                c: d.cards.map(c => [c.front, c.back, c.level || 0, Math.round((c.nextReview || 0) / 60000)])
-            }));
-            const code = await compress(JSON.stringify(lean));
-            await navigator.clipboard.writeText(code);
-            alert("🚀 CÓDIGO COPIADO! Cole no outro dispositivo.");
-        } catch (e) { alert("Erro ao comprimir dados."); }
-    }
-
-    async function importViaCode() {
-        const code = prompt("Cole o código aqui:");
-        if (!code) return;
-        try {
-            const json = await decompress(code.trim());
-            const parsed = JSON.parse(json);
-            if (confirm("Importar dados? Isso substituirá sua base atual.")) {
-                decks = parsed.map(d => ({
-                    name: d.n,
-                    cards: d.c.map(c => ({
-                        front: c[0], back: c[1], level: c[2], nextReview: c[3] * 60000
-                    }))
-                }));
-                save(); renderDecks(); alert("✅ Sincronizado!");
-            }
-        } catch (e) { alert("Código inválido!"); }
-    }
 
     // 5. MOTOR DE ESTUDO (Ebbinghaus)
     function startStudy(i, mode, subMode, e) {
