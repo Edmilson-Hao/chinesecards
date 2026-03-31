@@ -325,7 +325,7 @@
         const json = JSON.stringify(decks);
         const buf = await compress(json, 'gzip'); // Sua função
         const base64 = btoa(String.fromCharCode(...new Uint8Array(buf)));
-        const url = window..origin + "#s=" +base64;
+        const url = window.origin + "#s=" +base64;
 
         if(url.length > 16000) alert("Ainda grande demais para RL!");
         else navigator.clipboard.writeText(url);
