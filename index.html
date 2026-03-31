@@ -319,74 +319,29 @@
     function confirmAddWords() { const t = document.getElementById('edit-input').value; if(t) { decks[editingDeckIdx].cards.push(...t.trim().split('\n').map(l => { const [f, b] = l.split(';'); return f && b ? { front: f.trim(), back: b.trim(), level: 0, nextReview: 0 } : null; }).filter(c => c)); save(); showSection('library'); } }
     function saveDeck() { const n = document.getElementById('deck-name').value; const t = document.getElementById('bulk-input').value; if(n && t) { decks.push({ name: n, cards: t.trim().split('\n').map(l => { const [f, b] = l.split(';'); return f && b ? { front: f.trim(), back: b.trim(), level: 0, nextReview: 0 } : null; }).filter(c => c) }); save(); showSection('library'); } }
     
-    // Usaremos o serviço File.io (gratuito, anônimo e deleta após 1 download)
-async function generateSyncLink() {
-    const btn = event.target;
-    const originalText = btn.innerText;
-    btn.innerText = "⏳ Gerando código...";
-    
-    // Comprimimos os dados antes de enviar para ser ultra rápido
-    const lean = decks.map(d => ({
-        n: d.name,
-        c: d.cards.map(c => [c.front, c.back, c.level || 0, Math.round((c.nextReview || 0) / 60000)])
-    }));
-    
-    const blob = new Blob([JSON.stringify(lean)], { type: 'application/json' });
-    const formData = new FormData();
-    formData.append('file', blob, 'sync.json');
+    // Para o Link de Sincro
 
-    try {
-        // Envia para o file.io (expira em 1 dia ou após 1 download)
-        const response = await fetch('https://file.io/?expires=1d', {
-            method: 'POST',
-            body: formData
-        });
-        const result = await response.json();
+    async function generateSyncLink() {
+        const json = JSON.stringify(decks);
+        const buf = await compress(json, 'gzip'); // Sua função
+        const base64 = btoa(String.fromCharCode(...new Uint8Array(buf)));
+        const url = window..origin + "#s=" +base64;
 
-        if (result.success) {
-            // O link do file.io é curto. Vamos extrair apenas o ID final
-            const syncId = result.key; 
-            const finalUrl = window.location.origin + window.location.pathname + '#get=' + syncId;
-            
-            navigator.clipboard.writeText(finalUrl).then(() => {
-                alert(`🚀 LINK DE ALTA CAPACIDADE GERADO!\n\nEste link contém toda sua base e pode ser usado UMA VEZ no outro dispositivo.\n\nExpira em 24h.`);
-            });
-        }
-    } catch (e) {
-        alert("Erro ao conectar com a nuvem. Use 'Exportar JSON'.");
-    } finally {
-        btn.innerText = originalText;
+        if(url.length > 16000) alert("Ainda grande demais para RL!");
+        else navigator.clipboard.writeText(url);
+
     }
-}
 
-async function checkSyncURL() {
-    const hash = window.location.hash;
-    
-    if (hash.startsWith('#get=')) {
-        const syncId = hash.split('#get=')[1];
-        if (confirm("📥 Dados em nuvem detectados. Deseja baixar e sincronizar sua base agora?")) {
-            try {
-                const response = await fetch(`https://file.io/${syncId}`);
-                const parsed = await response.json();
-                
-                if (parsed) {
-                    decks = parsed.map(d => ({
-                        name: d.n,
-                        cards: d.c.map(c => ({
-                            front: c[0], back: c[1], level: c[2], nextReview: c[3] * 60000
-                        }))
-                    }));
-                    save();
-                    window.history.replaceState({}, '', window.location.pathname);
-                    renderDecks();
-                    alert("✅ Sincronização completa via Nuvem!");
-                }
-            } catch (e) {
-                alert("❌ Erro: O link expirou ou já foi utilizado.");
-            }
-        }
+
+
+    // Para ler o Link
+
+    async function checkSyncURL() {
+        const base64 = window.location.hash.split("#s=")[1];
+        const binary = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+        const json = await decompress(binary, 'gzip'); // Sua função
+        decks = JSON.parse(json);
     }
-}
     function exportJSON() { const d = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(decks)); const a = document.createElement('a'); a.href = d; a.download = "backup.json"; a.click(); }
     function importJSON(e) { const r = new FileReader(); r.onload = (ev) => { decks = JSON.parse(ev.target.result); save(); renderDecks(); }; r.readAsText(e.target.files[0]); }
     async function requestNotificationPermission() { const p = await Notification.requestPermission(); if(p === 'granted') alert("Ativadas!"); }
