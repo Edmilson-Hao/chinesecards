@@ -6,11 +6,10 @@
     <title>Mandarim Master PRO</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1a1d28">
-    <!-- LZ-String para compressão ultra-eficiente (já cacheado pelo Service Worker) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
     <style>
         :root { 
-            --primary: #859bf5; 
+            --primary: #5c7cff; /* Azul ajustado para melhor contraste no fundo escuro */
             --bg: #13151a; 
             --card: #1e212b; 
             --success: #2ecc71; 
@@ -34,27 +33,24 @@
         .dash-label { display: block; font-size: 0.55em; font-weight: bold; text-transform: uppercase; opacity: 0.9; }
         .dash-value { font-size: 1.2em; font-weight: 800; }
         
-        @keyframes flame {
-            0% { transform: scale(1); text-shadow: 0 0 0px orange; }
-            50% { transform: scale(1.1); text-shadow: 0 0 10px red; }
-            100% { transform: scale(1); text-shadow: 0 0 0px orange; }
-        }
-        .active-streak { animation: flame 1.5s infinite; color: #ff4500 !important; font-weight: 900; }
-
         .hsk-section { background: var(--card); padding: 15px; border-radius: 18px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .hsk-bar-container { margin-bottom: 8px; }
         .hsk-meta { display: flex; justify-content: space-between; font-size: 0.7em; font-weight: bold; margin-bottom: 2px; color: var(--sub-text); }
         
-        .hsk1 { background: #9b59b6 !important; } 
-        .hsk2 { background: #3498db !important; } 
-        .hsk3 { background: #e67e22 !important; } 
-        .hsk4 { background: #e74c3c !important; }
-        .hsk5 { background: #27ae60 !important; }
+        .hsk1 { background: #9b59b6 !important; } .hsk2 { background: #3498db !important; } .hsk3 { background: #e67e22 !important; }
+        .hsk-tag { font-size: 0.6em; padding: 2px 5px; border-radius: 4px; margin-left: 4px; color: white; vertical-align: middle; font-weight: bold; text-transform: uppercase; }
 
         .deck-card { background: var(--card); padding: 18px; border-radius: 18px; margin-bottom: 15px; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border-left: 5px solid var(--primary); }
         .deck-title { color: var(--text); font-weight: bold; }
         .prog-bg { width: 100%; background: #2c3e50; height: 8px; border-radius: 4px; margin: 10px 0; overflow: hidden; }
         .prog-fill { height: 100%; background: linear-gradient(90deg, #2ecc71, #27ae60); transition: 0.5s; }
         
+        .curve-section { background: var(--card); border-radius: 18px; padding: 15px; margin-top: 20px; border: 1px solid var(--border); box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .curve-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; margin-top: 10px; }
+        .curve-box { background: #2c3e50; border: 1px solid var(--border); padding: 5px; border-radius: 10px; text-align: center; cursor: pointer; color: var(--text); }
+        .lvl-num { display: block; font-weight: 800; font-size: 0.9em; color: var(--primary); }
+        .lvl-desc { font-size: 0.5em; color: var(--sub-text); font-weight: bold; }
+
         .tabs { display: flex; gap: 8px; margin-bottom: 15px; }
         .tab-btn { flex: 1; padding: 12px; border: none; background: var(--card); color: var(--text); border-radius: 10px; font-weight: bold; cursor: pointer; }
         .tab-btn.active { background: var(--primary); color: white; }
@@ -62,10 +58,11 @@
         .main-btn { background: var(--primary); color: #fff; border: none; padding: 12px; border-radius: 10px; font-weight: bold; width: 100%; cursor: pointer; border-bottom: 3px solid rgba(0,0,0,0.3); margin-bottom: 5px; }
         input, textarea, select { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid var(--border); background-color: var(--input-bg); color: var(--text); font-size: 1em; box-sizing: border-box; margin-bottom: 10px; }
 
+        .word-pill { display: inline-block; background: #2c3e50; color: var(--primary); padding: 4px 10px; border-radius: 12px; font-size: 0.8em; margin: 3px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); }
         .options-grid { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 10px; }
         .opt-btn { background: var(--card); color: var(--text); border: 2px solid var(--border); padding: 12px; border-radius: 10px; font-size: 1em; cursor: pointer; }
-        .opt-btn.correct { background: var(--success) !important; color: white; }
-        .opt-btn.wrong { background: var(--danger) !important; color: white; }
+        .opt-btn.correct { background: var(--success) !important; color: white; border-color: var(--success); }
+        .opt-btn.wrong { background: var(--danger) !important; color: white; border-color: var(--danger); }
         
         .section { display: none; } .section.active { display: block; }
     </style>
@@ -78,7 +75,7 @@
 </div>
 
 <div class="container">
-    <div style="background: var(--card); padding:10px 15px; border-radius:12px; margin-bottom:15px; display:flex; align-items:center; gap:10px;">
+    <div style="background: var(--card); padding:10px 15px; border-radius:12px; margin-bottom:15px; display:flex; align-items:center; gap:10px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
         <span>🎙️</span><select id="voice-select" style="margin:0"></select>
     </div>
 
@@ -96,19 +93,31 @@
         </div>
 
         <div class="hsk-section">
-            <h4 style="margin:0 0 10px 0; font-size:0.85em;">🏆 DOMÍNIO HSK</h4>
+            <h4 style="margin:0 0 10px 0; font-size:0.85em;">🏆 DOMÍNIO HSK (PALAVRAS MESTRES)</h4>
             <div id="hsk-bars"></div>
         </div>
 
         <div id="deck-list"></div>
 
+        <div class="curve-section" id="curve-info" style="display:none">
+            <h4 style="margin:0 0 10px 0;">📊 Baralho: <span id="current-deck-name" style="color:var(--primary)"></span></h4>
+            <div class="curve-grid">
+                <div class="curve-box" onclick="showLevelWords(0)"><span class="lvl-num" id="l0">0</span><span class="lvl-desc">Novo</span></div>
+                <div class="curve-box" onclick="showLevelWords(1)"><span class="lvl-num" id="l1">0</span><span class="lvl-desc">10m</span></div>
+                <div class="curve-box" onclick="showLevelWords(2)"><span class="lvl-num" id="l2">0</span><span class="lvl-desc">1d</span></div>
+                <div class="curve-box" onclick="showLevelWords(3)"><span class="lvl-num" id="l3">0</span><span class="lvl-desc">2d</span></div>
+                <div class="curve-box" onclick="showLevelWords(4)"><span class="lvl-num" id="l4">0</span><span class="lvl-desc">5d</span></div>
+                <div class="curve-box" onclick="showLevelWords(6)"><span class="lvl-num" id="l7">0</span><span class="lvl-desc">Mestre</span></div>
+            </div>
+            <div id="words-preview" style="margin-top:10px; border-top:1px solid var(--border); padding-top:10px;"></div>
+        </div>
+
         <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 5px;">
-            <button class="main-btn" style="background:#1a1d28;" onclick="generateSyncCode()">🔗 Gerar Código de Sync</button>
-            <button class="main-btn" style="background:#4a5568;" onclick="importViaCode()">📥 Receber via Código</button>
-            <button class="main-btn" style="background:#f39c12" onclick="requestNotificationPermission()">🔔 Notificações</button>
+            <button class="main-btn" style="background:#1a1d28; border-bottom-color: rgba(255,255,255,0.1);" onclick="generateSyncLink()">🔗 Sincronizar via Link</button>
+            <button class="main-btn" style="background:#f39c12" onclick="requestNotificationPermission()">🔔 Notificações Inteligentes</button>
             <div style="display:flex; gap:5px;">
-                <button class="main-btn" style="background:#6c757d; font-size:0.8em" onclick="exportJSON()">📤 Exportar JSON</button>
-                <button class="main-btn" style="background:#6c757d; font-size:0.8em" onclick="document.getElementById('fileIn').click()">📥 Importar JSON</button>
+                <button class="main-btn" style="background:#6c757d; font-size:0.8em" onclick="exportJSON()">📤 Exportar</button>
+                <button class="main-btn" style="background:#6c757d; font-size:0.8em" onclick="document.getElementById('fileIn').click()">📥 Importar</button>
             </div>
             <input type="file" id="fileIn" style="display:none" onchange="importJSON(event)">
         </div>
@@ -120,6 +129,15 @@
             <input type="text" id="deck-name" placeholder="Nome do Baralho">
             <textarea id="bulk-input" placeholder="Hanzi;Pinyin - Tradução" style="height:150px"></textarea>
             <button class="main-btn" onclick="saveDeck()">Salvar</button>
+        </div>
+    </div>
+
+    <div id="edit-mode" class="section">
+        <div class="deck-card">
+            <h3>Adicionar Palavras</h3>
+            <textarea id="edit-input" style="height:150px;" placeholder="Hanzi;Pinyin - Tradução"></textarea>
+            <button class="main-btn" onclick="confirmAddWords()" style="background:var(--success)">Confirmar</button>
+            <button class="main-btn" onclick="showSection('library')" style="background:#6c757d">Voltar</button>
         </div>
     </div>
 
@@ -135,138 +153,23 @@
 </div>
 
 <script>
-    // ====================== HSK_DB REFEITO ======================
-    // - Inclui TODAS as palavras oficiais (single + multi-caractere) de cada nível
-    // - NENHUMA palavra repete de níveis anteriores (listas exclusivas)
-    // - HSK5 adicionado
-    // - Verificação agora retorna o NÍVEL MAIS ALTO que a frase contém
     const HSK_DB = {
-        hsk1: [
-            "我","你","他","她","是","的","人","不","在","有","这","中","会","为","上","大","个","地","来","出","时","国","和","也","子","到","说","要","下",
-            "好","吗","呢","老师","学生","爸爸","妈妈","中国","美国","日本","韩国","英国","去","吃","喝","买","喜欢","我们","你们","他们","她们","这里","哪里",
-            "是","要","喜欢","在","吃","喝","买","不","吗","呢","好","大","小","很","也","这","是","的"
-        ],
-        hsk2: [
-            "吧","白","百","报","过","还","近","进","就","觉得","看","考","可以","块","乐","离","两","路","卖","慢","忙","每","妹妹","门","面","名",
-            "饭","面","饺子","冰淇淋","水","茶","可乐","咖啡","酒","米饭","汤","热","粥","豆腐","对","律师","中文","英文","韩文","课","音乐","数学","大学生",
-            "老公","老婆","常常","不常","书","书店","超市","饭馆","菜","绿茶","零食","谢谢","杯","牛奶","冰","不客气","手机","钱包","洗手间","火车","火车站",
-            "哎呀","行李","车票","站台","同学","新","今天","你好","四","历史","真的吗","叫","我叫","运动","篮球","打","跑步","非常","游泳","网球","还是","比较",
-            "公园","健身房"
-        ],
-        hsk3: [
-            "阿","啊","矮","安静","把","搬","办法","办公室","半","帮忙","包","饱","方","准备","差","最後","虽然","经常","愿意","饿","累","小","大人","小人",
-            "巴西","巴西人","中国人","好","饿","累","小","大","大人","小人","很","不","也","吗"
-        ],
-        hsk4: [
-            "爱情","安排","安全","暗示","按照","百分之","棒","抱歉","保证","报名","抱","倍","本来","笨","比如","毕业","并且","标准","表达","表现","表演",
-            "博物馆","餐厅","参加","曾经","产品","成功","成绩","诚实","充满","穿过","传统","刺激","聪明","错误","答案","当地","当时","道理","登机","等待"
-        ],
-        hsk5: [
-            "爱情","安排","安全","暗示","按照","百分之","棒","抱歉","保证","报名","抱","倍","本来","笨","比如","毕业","并且","标准","表达","表现","表演",
-            "博物馆","餐厅","参加","曾经","产品","成功","成绩","诚实","充满","穿过","传统","刺激","聪明","错误","答案","当地","当时","道理","登机","等待",
-            "调查","导演","得意","敌人","地球","地震","电梯","电子","调查","对方","对手","动物","独特","度过","锻炼","对面","多亏","朵","恶劣","耳环","发表",
-            "法律","反应","范围","方法","方向","放弃","放假","放松","非常","飞机","废话","分布","分手","风景","符合","复杂","负责","附近","改变","改善","干杯",
-            "感动","感谢","刚好","高级","根据","更加","工资","公平","沟通","购物","够","估计","鼓励","故意","关键","管理","光","广告","规定","规则","国际","果然",
-            "过程","害羞","寒假","行业","合格","合适","合作","盒子","厚","后悔","呼吸","忽然","护士","怀疑","环境","活动","火","机会","基础","及时","激烈","计划",
-            "继续","加油","家庭","假设","价格","坚决","坚决","建议","将来","讲究","交流","教授","教育","结果","解决","借","紧张","进入","禁止","究竟","决定",
-            "绝对","咖啡","开放","看法","考虑","考试","可怜","可能","客人","空调","空闲","控制","困难","扩大","困","拉","来不及","浪费","老板","浪漫","老虎",
-            "老婆","老实","乐观","雷","理解","理论","理想","厉害","力量","立刻","联系","练习","良好","聊天","临时","另外","流行","留","录取","旅行","律师",
-            "麻烦","马上","满意","毛巾","帽子","美丽","梦想","迷路","密码","免费","面对","面积","秒","明白","明确","明显","命令","目的","耐心","难道","能力",
-            "年纪","年轻","努力","暖和","偶然","怕","判断","陪","配合","佩服","碰","批评","脾气","篇","骗","骗子","拼","平常","平时","平时","评论","葡萄","普遍",
-            "期待","奇怪","奇迹","起来","气氛","千","千万","签证","墙","抢","强烈","桥","亲切","亲戚","情况","请求","球迷","取得","取消","确定","确实","裙子",
-            "然而","然后","染","热闹","忍","认识","认为","任务","仍然","日历","容易","如果","软件","散步","沙发","伤心","商量","社会","射","摄影","深","甚至",
-            "失败","失望","失去","时候","实验","实在","似的","收藏","收据","收拾","手表","手术","首","首先","受到","瘦","舒服","叔叔","熟悉","数量","数字","刷",
-            "摔","水平","说不定","说服","思想","似乎","速度","塑料","算","随便","随时","孙子","缩短","所以","所有","台","太太","谈","谈恋爱","汤","糖","特别",
-            "特点","疼","提","提供","题目","天气","体育","天气","天真","挑战","条件","跳舞","通知","通过","同情","同意","头发","突然","土","兔子","团结","推",
-            "脱","娃娃","完成","完美","万","网","网站","忘记","危险","威胁","微笑","唯一","味道","温度","温暖","文件","文化","文章","闻","稳定","无聊","无论",
-            "误会","吸引","洗","洗澡","系","戏剧","下载","夏","显示","现代","现实","现象","现在","限制","香","详细","想象","象","消息","小吃","小伙子","小心",
-            "笑","效果","效率","笑话","写作","辛苦","欣赏","信","信息","兴奋","幸福","性格","修理","需求","需要","宣传","选择","学期","训练","压力","牙齿","研究",
-            "严格","严重","眼镜","阳光","养","样子","要求","邀请","钥匙","页","业余","一般","一半","一定","一共","一下","一些","一直","移动","移民","以后","以前",
-            "以为","意见","意思","意外","阴","音乐","银行","饮料","印刷","应该","影响","赢","硬","永远","用","优势","优秀","幽默","尤其","由","由于","邮局","游戏",
-            "友好","友谊","鱼","愉快","雨","遇到","预报","预订","原来","原因","约","阅读","月亮","允许","杂志","再见","暂时","糟糕","早","造成","责任","怎么","怎么样",
-            "增加","占","站","张","长","掌握","照顾","照相机","着急","哲学","真正","争","正常","整齐","正常","证明","支持","知识","值得","直接","直接","植物","职业",
-            "只","指","指","质量","至少","纸","中间","中级","重点","重要","周","周围","猪","竹子","主意","祝","著名","注意","专门","专业","转","赚","准备","准确",
-            "准时","桌子","着火","资本","仔细","子","紫","字","自从","自动","自然","自助","总是","总共","足够","足球","组成","祖先","尊重","昨天","最近","遵守","左右",
-            "作家","作者","做","做饭","做法","做生意","做作业"
-        ]
+        hsk1: "我你他是的人不在有这中会为上大個地來出時國和對也子到說要下以道自己".split(''),
+        hsk2: "吧白百報過還近進就覺得看考可以塊樂離兩路賣慢忙每妹妹門面名".split(''),
+        hsk3: "阿啊矮安靜把搬辦法辦公室半幫忙包飽方準備差最後雖然經常願意".split('')
     };
 
-    function getHSK(front) {
-        // Verifica do nível MAIS ALTO para o mais baixo (prioridade ao nível mais avançado)
-        const order = ['hsk5', 'hsk4', 'hsk3', 'hsk2', 'hsk1'];
-        for (let lvl of order) {
-            if (HSK_DB[lvl].some(w => front.includes(w))) {
-                return lvl;
-            }
-        }
+    function getHSKLevel(word) {
+        if(HSK_DB.hsk1.some(c => word.includes(c))) return 'hsk1';
+        if(HSK_DB.hsk2.some(c => word.includes(c))) return 'hsk2';
+        if(HSK_DB.hsk3.some(c => word.includes(c))) return 'hsk3';
         return '';
     }
 
-    const STORAGE_KEY = 'mandarim_ebbinghaus_final';
-    const INTERVALS = [0, 10, 1440, 2880, 7200, 21600, 43200, 86400];
-    let decks = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-    let curSession = { deckIdx: 0, cards: [], cur: 0, mode: '', subMode: '', answered: false };
-    let voices = [];
-
     window.addEventListener('load', () => { 
-        setTimeout(() => { 
-            document.getElementById('splash').style.opacity = '0'; 
-            setTimeout(() => document.getElementById('splash').style.display = 'none', 300); 
-        }, 300); 
+        setTimeout(() => { document.getElementById('splash').style.opacity = '0'; setTimeout(() => document.getElementById('splash').style.display = 'none', 300); }, 300); 
         updateStreak();
-        renderDecks();
     });
-
-    function showSection(id) { 
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); 
-        document.getElementById(id).classList.add('active'); 
-        if(id === 'library') renderDecks(); 
-    }
-
-    function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(decks)); }
-
-    function renderDecks() {
-        const container = document.getElementById('deck-list'); container.innerHTML = '';
-        let tA = 0, tR = 0, tM = 0; const now = Date.now();
-        let hskM = { hsk1: 0, hsk2: 0, hsk3: 0, hsk4: 0, hsk5: 0 };
-
-        decks.forEach((d, i) => {
-            const rev = d.cards.filter(c => (c.level || 0) < 6 && (c.nextReview || 0) <= now).length;
-            const mas = d.cards.filter(c => (c.level || 0) >= 6).length;
-            const perc = d.cards.length ? Math.round((mas / d.cards.length) * 100) : 0;
-            d.cards.forEach(c => { 
-                if(c.level >= 6) { 
-                    const lvl = getHSK(c.front); 
-                    if(lvl) hskM[lvl]++; 
-                } 
-            });
-            tA += d.cards.length; tR += rev; tM += mas;
-            
-            container.innerHTML += `<div class="deck-card">
-                <button onclick="deleteDeck(${i}, event)" style="position:absolute;top:10px;right:10px;border:none;background:none;color:#666;">✖</button>
-                <strong class="deck-title">\( {d.name}</strong><div class="prog-bg"><div class="prog-fill" style="width: \){perc}%"></div></div>
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
-                    <button class="main-btn" style="font-size:0.6em" onclick="startStudy(${i},'typing','visual')">⌨ LER</button>
-                    <button class="main-btn" style="font-size:0.6em;background:#8e44ad" onclick="startStudy(${i},'choice','visual')">🔘 LER</button>
-                    <button class="main-btn" style="font-size:0.6em;background:#2c3e50" onclick="startStudy(${i},'typing','audio')">🎧 OUVIR</button>
-                    <button class="main-btn" style="font-size:0.6em;background:#d35400" onclick="startStudy(${i},'choice','audio')">🔊 OUVIR</button>
-                </div></div>`;
-        });
-
-        document.getElementById('dash-total').innerText = tA;
-        document.getElementById('dash-review').innerText = tR;
-        document.getElementById('dash-mastery').innerText = tA ? Math.round((tM/tA)*100)+"%" : "0%";
-        renderHSK(hskM);
-    }
-
-    function renderHSK(data) {
-        const hskContainer = document.getElementById('hsk-bars'); hskContainer.innerHTML = '';
-        ['hsk1','hsk2','hsk3','hsk4','hsk5'].forEach(lvl => {
-            const totalChars = HSK_DB[lvl].length;
-            const p = totalChars ? Math.min(Math.round((data[lvl] / totalChars) * 100), 100) : 0;
-            hskContainer.innerHTML += `<div class="hsk-bar-container"><div class="hsk-meta"><span>\( {lvl.toUpperCase()}</span><span> \){p}%</span></div><div class="prog-bg" style="margin:0;height:6px;"><div class="prog-fill \( {lvl}" style="width: \){p}%"></div></div></div>`;
-        });
-    }
 
     function updateStreak() {
         const stats = JSON.parse(localStorage.getItem('mandarim_stats')) || { lastDate: '', streak: 0 };
@@ -279,136 +182,130 @@
         document.getElementById('dash-streak').innerText = stats.streak;
     }
 
-    // ====================== SYNC REWORK (LZ-String ultra-comprimido) ======================
-    // - Código gerado agora é <1000 caracteres mesmo com o JSON completo que você enviou
-    // - Compressão poderosa + Base64 limpo (muito mais eficiente que o LZW antigo)
-    // - Totalmente compatível com o formato atual dos decks
-    function generateSyncCode() {
-        if (!decks.length) return alert("Nada para exportar.");
-        const now = Date.now();
-        const mini = decks.map(d => [
-            d.name, 
-            d.cards.map(c => [
-                c.front, 
-                c.back, 
-                c.level || 0, 
-                c.nextReview ? Math.round((c.nextReview - now) / 3600000) : 0
-            ])
-        ]);
-        const jsonStr = JSON.stringify(mini);
-        const compressed = LZString.compressToBase64(jsonStr);
-        navigator.clipboard.writeText(compressed).then(() => {
-            alert(`✅ Código copiado!\nTamanho: ${compressed.length} caracteres (muito menor que 1000!)`);
-        });
-    }
-
-    function importViaCode() {
-        const code = prompt("Cole o código de sync:");
-        if (!code) return;
-        try {
-            const jsonStr = LZString.decompressFromBase64(code.trim());
-            if (!jsonStr) throw new Error("Compressão inválida");
-            const data = JSON.parse(jsonStr);
-            const now = Date.now();
-            decks = data.map(d => ({
-                name: d[0],
-                cards: d[1].map(c => ({
-                    front: c[0],
-                    back: c[1],
-                    level: c[2],
-                    nextReview: now + (c[3] * 3600000)
-                }))
-            }));
-            save();
-            renderDecks();
-            alert(`✅ Importação bem-sucedida!\n${decks.length} baralhos carregados.`);
-        } catch (e) {
-            console.error(e);
-            alert("❌ Código inválido ou corrompido.");
-        }
-    }
-
-    // ====================== RESTANTE DO CÓDIGO (sem alterações relevantes) ======================
-    function startStudy(i, mode, subMode) {
-        const due = decks[i].cards.filter(c => (c.nextReview || 0) <= Date.now() || (c.level || 0) === 0);
-        if(!due.length) return alert("Nada para revisar!");
-        curSession = { deckIdx: i, mode, subMode, cards: due.sort(() => Math.random() - 0.5).slice(0, 15), cur: 0, answered: false };
-        showSection('study-area'); renderCard();
-    }
-
-    function renderCard() {
-        const c = curSession.cards[curSession.cur];
-        const display = document.getElementById('display-term');
-        if(curSession.subMode === 'audio') { display.innerText = "🔊"; speak(c.front); } 
-        else { display.innerText = c.back.includes('-') ? c.back.split('-')[1].trim() : c.back; }
-        
-        document.getElementById('prog-text').innerText = `${curSession.cur + 1} / ${curSession.cards.length}`;
-        document.getElementById('feedback').innerText = ''; 
-        document.getElementById('next-btn').style.display = 'none';
-        curSession.answered = false;
-
-        const zone = document.getElementById('interaction-zone');
-        if(curSession.mode === 'typing') {
-            zone.innerHTML = `<input type="text" id="type-in" placeholder="Hanzi..." autocomplete="off">`;
-            document.getElementById('type-in').addEventListener('keypress', (e) => { if(e.key==='Enter') handleTyping(e); });
-            setTimeout(() => document.getElementById('type-in').focus(), 150);
-        } else {
-            const opts = [c.front, ...decks[curSession.deckIdx].cards.map(x=>x.front).filter(f=>f!==c.front).sort(()=>0.5-Math.random()).slice(0,3)].sort(()=>0.5-Math.random());
-            zone.innerHTML = `<div class="options-grid">\( {opts.map(o => `<button class="opt-btn" onclick="checkChoice(this,' \){o.replace(/'/g, "\\'")}')">${o}</button>`).join('')}</div>`;
-        }
-    }
-
-    function checkChoice(btn, val) {
-        if(curSession.answered) return;
-        if(val === curSession.cards[curSession.cur].front) { btn.classList.add('correct'); handleResult(true); }
-        else { btn.classList.add('wrong'); handleResult(false); }
-    }
-
-    function handleTyping(e) { if(!curSession.answered) handleResult(e.target.value.trim() === curSession.cards[curSession.cur].front); }
-
-    function handleResult(isCorrect) {
-        curSession.answered = true;
-        const c = curSession.cards[curSession.cur];
-        if (isCorrect) c.level = (c.level || 0) + 1;
-        else c.level = Math.max((c.level || 0) - 2, 0);
-        c.nextReview = Date.now() + (INTERVALS[Math.min(c.level, 7)] * 60000);
-        
-        const fb = document.getElementById('feedback');
-        fb.innerText = isCorrect ? "🔥 Excelente!" : "🧊 Revisar: " + c.front;
-        fb.style.color = isCorrect ? "var(--success)" : "var(--danger)";
-        save();
-        document.getElementById('next-btn').style.display = 'block';
-        speak(c.front);
-    }
-
-    function processNext() { curSession.cur++; if(curSession.cur < curSession.cards.length) renderCard(); else showSection('library'); }
-
-    function saveDeck() {
-        const n = document.getElementById('deck-name').value;
-        const t = document.getElementById('bulk-input').value;
-        if(n && t) {
-            decks.push({ name: n, cards: t.trim().split('\n').map(l => {
-                const [f, b] = l.split(';');
-                return f && b ? { front: f.trim(), back: b.trim(), level: 0, nextReview: 0 } : null;
-            }).filter(c => c) });
-            save(); showSection('library');
-        }
-    }
-
-    function deleteDeck(i, e) { e.stopPropagation(); if(confirm("Apagar?")) { decks.splice(i, 1); save(); renderDecks(); } }
+    const STORAGE_KEY = 'ebbinghaus_vFinal_Full';
+    const INTERVALS = [0, 10, 1440, 2880, 7200, 21600, 43200];
+    let decks = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    let curSession = { deckIdx: 0, cards: [], cur: 0, mode: '', subMode: '', answered: false };
+    let voices = [];
 
     function loadVoices() { 
         voices = window.speechSynthesis.getVoices(); 
-        document.getElementById('voice-select').innerHTML = voices.filter(v => v.lang.includes('zh')).map(v => `<option value="\( {v.name}"> \){v.name}</option>`).join(''); 
+        document.getElementById('voice-select').innerHTML = voices.filter(v => v.lang.includes('zh')).map(v => `<option value="${v.name}">${v.name}</option>`).join(''); 
     }
     window.speechSynthesis.onvoiceschanged = loadVoices;
     function speak(t) { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance(t); m.voice = voices.find(v => v.name === document.getElementById('voice-select').value); m.lang = 'zh-CN'; window.speechSynthesis.speak(m); }
     function speakCurrent() { if(curSession.cards[curSession.cur]) speak(curSession.cards[curSession.cur].front); }
 
+    function showSection(id) { document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); if(id === 'library') renderDecks(); }
+    
+    function renderDecks() {
+        const container = document.getElementById('deck-list'); container.innerHTML = '';
+        let tA = 0, tR = 0, tM = 0; const now = Date.now();
+        let hskM = { hsk1: 0, hsk2: 0, hsk3: 0 };
+
+        decks.forEach((d, i) => {
+            const rev = d.cards.filter(c => c.level < 6 && (c.nextReview || 0) <= now).length;
+            const mas = d.cards.filter(c => c.level >= 6).length;
+            const perc = d.cards.length ? Math.round((mas / d.cards.length) * 100) : 0;
+            d.cards.forEach(c => { if(c.level >= 6) { const lvl = getHSKLevel(c.front); if(lvl) hskM[lvl]++; } });
+            tA += d.cards.length; tR += rev; tM += mas;
+            container.innerHTML += `<div class="deck-card" onclick="updateCurveDisplay(${i})">
+                <button onclick="deleteDeck(${i}, event)" style="position:absolute;top:10px;right:10px;border:none;background:none;color:#ccc;">✖</button>
+                <strong class="deck-title">${d.name}</strong><div class="prog-bg"><div class="prog-fill" style="width:${perc}%"></div></div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
+                    <button class="main-btn" style="font-size:0.6em" onclick="startStudy(${i},'typing','visual',event)">⌨ LER</button>
+                    <button class="main-btn" style="font-size:0.6em;background:#8e44ad" onclick="startStudy(${i},'choice','visual',event)">🔘 LER</button>
+                    <button class="main-btn" style="font-size:0.6em;background:#2c3e50" onclick="startStudy(${i},'typing','audio',event)">🎧 OUVIR</button>
+                    <button class="main-btn" style="font-size:0.6em;background:#d35400" onclick="startStudy(${i},'choice','audio',event)">🔊 OUVIR</button>
+                </div><button class="main-btn" style="font-size:0.6em;background:#2c3e50;color:var(--text);margin-top:5px; border-bottom-color: rgba(255,255,255,0.1);" onclick="openAddWords(${i}, event)">+ ADICIONAR PALAVRAS</button></div>`;
+        });
+
+        const hskContainer = document.getElementById('hsk-bars'); hskContainer.innerHTML = '';
+        ['hsk1','hsk2','hsk3'].forEach(lvl => {
+            const p = Math.min(Math.round((hskM[lvl] / HSK_DB[lvl].length) * 100), 100);
+            hskContainer.innerHTML += `<div class="hsk-bar-container"><div class="hsk-meta"><span>${lvl.toUpperCase()}</span><span>${p}%</span></div><div class="prog-bg" style="margin:0;height:6px;"><div class="prog-fill ${lvl}" style="width:${p}%"></div></div></div>`;
+        });
+
+        document.getElementById('dash-total').innerText = tA; document.getElementById('dash-review').innerText = tR; document.getElementById('dash-mastery').innerText = tA ? Math.round((tM/tA)*100)+"%" : "0%";
+    }
+
+    function updateCurveDisplay(idx) {
+        activeCurveIdx = idx; document.getElementById('curve-info').style.display = 'block';
+        document.getElementById('current-deck-name').innerText = decks[idx].name;
+        [0,1,2,3,4,6].forEach(l => {
+            const count = decks[idx].cards.filter(c => (l===6?c.level>=6:c.level===l)).length;
+            document.getElementById('l'+(l===6?7:l)).innerText = count;
+        });
+    }
+
+    function showLevelWords(lvl) {
+        const words = decks[activeCurveIdx].cards.filter(c => (lvl===7?c.level>=6:c.level===lvl));
+        document.getElementById('words-preview').innerHTML = words.map(w => {
+            const hsk = getHSKLevel(w.front);
+            return `<span class="word-pill" onclick="speak('${w.front}')">${w.front} ${hsk ? `<span class="hsk-tag ${hsk}">${hsk.toUpperCase()}</span>` : ''}</span>`;
+        }).join('');
+    }
+
+    function startStudy(i, mode, subMode, e) {
+        if(e) e.stopPropagation();
+        const due = decks[i].cards.filter(c => (c.nextReview || 0) <= Date.now() || c.level === 0);
+        if(!due.length) return alert("Em dia!");
+        curSession = { deckIdx: i, mode, subMode, cards: due.sort(() => Math.random() - 0.5).slice(0, 15), cur: 0, answered: false };
+        showSection('study-area'); renderCard();
+    }
+
+    function renderCard() {
+        const c = curSession.cards[curSession.cur]; const display = document.getElementById('display-term');
+        if(curSession.subMode === 'audio') { display.innerText = "🔊"; speak(c.front); } 
+        else { display.innerText = c.back.includes('-') ? c.back.split('-')[1].trim() : c.back; }
+        document.getElementById('prog-text').innerText = `${curSession.cur + 1} / ${curSession.cards.length}`;
+        document.getElementById('feedback').innerText = ''; document.getElementById('next-btn').style.display = 'none'; curSession.answered = false;
+        const zone = document.getElementById('interaction-zone');
+        if(curSession.mode === 'typing') { zone.innerHTML = `<input type="text" id="type-in" placeholder="Hanzi..." autocomplete="off">`; document.getElementById('type-in').addEventListener('keypress', (e) => {if(e.key==='Enter') handleKey(e);}); setTimeout(()=>document.getElementById('type-in').focus(),150); }
+        else { const opts = [c.front, ...decks[curSession.deckIdx].cards.map(x=>x.front).filter(f=>f!==c.front).sort(()=>Math.random()-0.5).slice(0,3)].sort(()=>Math.random()-0.5); zone.innerHTML = `<div class="options-grid">${opts.map(o => `<button class="opt-btn" onclick="checkChoice(this,'${o}')">${o}</button>`).join('')}</div>`; }
+    }
+
+    function checkChoice(btn, val) { if(curSession.answered) return; const correct = curSession.cards[curSession.cur].front; if(val === correct) { btn.classList.add('correct'); handleResult(true); } else { btn.classList.add('wrong'); handleResult(false); } }
+    
+    function handleKey(e) { 
+        if(!curSession.answered) handleResult(e.target.value.trim() === curSession.cards[curSession.cur].front); 
+    }
+
+    function handleResult(isCorrect) {
+        curSession.answered = true; const c = curSession.cards[curSession.cur];
+        c.level = isCorrect ? (c.level || 0) + 1 : Math.max((c.level || 0) - 1, 1);
+        c.nextReview = Date.now() + (INTERVALS[Math.min(c.level, 6)] * 60000);
+        document.getElementById('feedback').innerText = isCorrect ? "✅ Correto!" : "❌ Resposta: " + c.front;
+        document.getElementById('feedback').style.color = isCorrect ? "var(--success)" : "var(--danger)";
+        save(); document.getElementById('next-btn').style.display = 'block'; speak(c.front);
+    }
+
+    function processNext() { curSession.cur++; if(curSession.cur < curSession.cards.length) renderCard(); else showSection('library'); }
+    function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(decks)); }
+    function deleteDeck(i, e) { e.stopPropagation(); if(confirm("Apagar?")) { decks.splice(i, 1); save(); renderDecks(); } }
+    function openAddWords(i, e) { e.stopPropagation(); editingDeckIdx = i; showSection('edit-mode'); }
+    function confirmAddWords() { const t = document.getElementById('edit-input').value; if(t) { decks[editingDeckIdx].cards.push(...t.trim().split('\n').map(l => { const [f, b] = l.split(';'); return f && b ? { front: f.trim(), back: b.trim(), level: 0, nextReview: 0 } : null; }).filter(c => c)); save(); showSection('library'); } }
+    function saveDeck() { const n = document.getElementById('deck-name').value; const t = document.getElementById('bulk-input').value; if(n && t) { decks.push({ name: n, cards: t.trim().split('\n').map(l => { const [f, b] = l.split(';'); return f && b ? { front: f.trim(), back: b.trim(), level: 0, nextReview: 0 } : null; }).filter(c => c) }); save(); showSection('library'); } }
+    
+    function generateSyncLink() { const c = LZString.compressToEncodedURIComponent(JSON.stringify(decks)); const u = window.location.origin + window.location.pathname + '?sync=' + c; navigator.clipboard.writeText(u).then(() => alert("Link copiado!")); }
+    function checkSyncURL() { const p = new URLSearchParams(window.location.search); const s = p.get('sync'); if(s) { const d = LZString.decompressFromEncodedURIComponent(s); if(d && confirm("Importar dados?")) { decks = JSON.parse(d); save(); window.history.replaceState({}, '', window.location.pathname); renderDecks(); } } }
     function exportJSON() { const d = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(decks)); const a = document.createElement('a'); a.href = d; a.download = "backup.json"; a.click(); }
     function importJSON(e) { const r = new FileReader(); r.onload = (ev) => { decks = JSON.parse(ev.target.result); save(); renderDecks(); }; r.readAsText(e.target.files[0]); }
-    async function requestNotificationPermission() { if(await Notification.requestPermission() === 'granted') alert("Ativado!"); }
-    document.addEventListener('keydown', (e) => { if(e.key === 'Enter' && document.getElementById('next-btn').style.display === 'block') processNext(); });
+    async function requestNotificationPermission() { const p = await Notification.requestPermission(); if(p === 'granted') alert("Ativadas!"); }
+
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+    
+    // CORREÇÃO: Lógica para o segundo Enter disparar o "Próximo"
+    document.addEventListener('keydown', (e) => { 
+        if(e.key === 'Enter') {
+            const nextBtn = document.getElementById('next-btn');
+            if(nextBtn.style.display === 'block') {
+                processNext();
+            }
+        }
+    });
+
+    checkSyncURL(); renderDecks(); loadVoices();
 </script>
 </body>
 </html>
