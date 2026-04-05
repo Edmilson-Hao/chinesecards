@@ -5,11 +5,13 @@
   "display": "standalone",
   "background_color": "#1a1d28",
   "theme_color": "#1a1d28",
+  "description": "App offline para estudo de Mandarim via Ebbinghaus",
   "icons": [
     {
       "src": "https://cdn-icons-png.flaticon.com/512/3898/3898098.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
