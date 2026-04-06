@@ -58,3 +58,13 @@ input, textarea, select { width: 100%; padding: 12px; border-radius: 10px; borde
 
 /* Botão de Instalação */
 #install-banner { display: none; background: var(--primary); color: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; text-align: center; font-weight: bold; cursor: pointer; border: none; width: 100%; }
+
+/* Adições para as novas funcionalidades */
+#pinyin-display, #example-display { animation: fadeIn 0.3s; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-top: 15px; }
+.stat-card { background: var(--card); padding: 14px; border-radius: 12px; text-align: center; }
+.daily-bar { display: flex; align-items: flex-end; gap: 6px; height: 120px; margin: 15px 0; }
+.bar { flex: 1; background: var(--primary); border-radius: 6px; transition: 0.3s; position: relative; }
+.bar span { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); font-size: 0.7em; font-weight: bold; }

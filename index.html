@@ -19,14 +19,17 @@
     <button id="install-banner">📲 INSTALAR APLICATIVO NO CELULAR</button>
 
     <div style="background: var(--card); padding:10px 15px; border-radius:12px; margin-bottom:15px; display:flex; align-items:center; gap:10px;">
-        <span>🎙️</span><select id="voice-select" style="margin:0"></select>
+        <span>🎙️</span>
+        <select id="voice-select" style="margin:0; flex:1;"></select>
     </div>
 
     <div class="tabs">
         <button class="tab-btn active" onclick="showSection('library')">📚 BIBLIOTECA</button>
         <button class="tab-btn" onclick="showSection('create')">➕ NOVO</button>
+        <button class="tab-btn" onclick="showSection('stats')">📊 ESTATÍSTICAS</button>
     </div>
 
+    <!-- Biblioteca -->
     <div id="library" class="section active">
         <div class="dash-grid">
             <div class="dash-item" style="background: #3498db;"><span class="dash-label">Total</span><span id="dash-total" class="dash-value">0</span></div>
@@ -52,25 +55,66 @@
         </div>
     </div>
 
+    <!-- Novo Baralho -->
     <div id="create" class="section">
         <div class="deck-card">
             <h3>Novo Baralho</h3>
-            <input type="text" id="deck-name" placeholder="Ex: HSK 1 - Verbos">
-            <textarea id="bulk-input" placeholder="Hanzi ; Tradução (Uma por linha)" style="height:150px"></textarea>
+            <input type="text" id="deck-name" placeholder="Ex: HSK 5 - Verbos">
+            <textarea id="bulk-input" placeholder="Formato: Hanzi ; Pinyin ; Tradução ; Exemplo (uma por linha)
+Exemplo:
+安排 ; ān pái ; arranjar/planejar ; Preciso arranjar meu tempo.
+爱不释手 ; ài bú shì shǒu ; amar com paixão ; Ele ama os livros." 
+style="height:180px; font-size:0.95em;"></textarea>
             <button class="main-btn" onclick="saveDeck()">Salvar Baralho</button>
         </div>
     </div>
 
+    <!-- Área de Estudo -->
     <div id="study-area" class="section">
-        <div class="deck-card" style="text-align:center; min-height:400px; display:flex; flex-direction:column; justify-content:center;">
-            <div id="prog-text" style="font-weight:bold; font-size:0.8em">0/0</div>
-            <div id="display-term" style="font-size:2.8em; font-weight:800; margin:25px 0; cursor:pointer" onclick="speakCurrent()">...</div>
+        <div class="deck-card" style="text-align:center; min-height:430px; display:flex; flex-direction:column; justify-content:center;">
+            
+            <div id="prog-text" style="font-weight:bold; font-size:0.85em; margin-bottom:10px;">0/0</div>
+            
+            <div id="display-term" style="font-size:2.85em; font-weight:800; margin:25px 0; cursor:pointer; min-height:85px;" onclick="speakCurrent()">
+                ...
+            </div>
+
+            <!-- Pinyin opcional -->
+            <div id="pinyin-display" style="display:none; font-size:1.6em; color:#f39c12; font-weight:500; margin:12px 0; padding:10px; background:rgba(243,156,18,0.1); border-radius:12px;">
+            </div>
+
+            <!-- Exemplo opcional -->
+            <div id="example-display" style="display:none; background:var(--card); padding:16px; border-radius:12px; margin:12px 0; font-size:1.05em; line-height:1.5; text-align:left;">
+            </div>
+
+            <!-- Botões Pinyin e Exemplo -->
+            <div style="display:flex; gap:10px; margin:15px 0;">
+                <button class="main-btn" style="background:#f39c12; flex:1; padding:10px; font-size:0.92em;" onclick="togglePinyin()">
+                    👀 Pinyin
+                </button>
+                <button class="main-btn" style="background:#27ae60; flex:1; padding:10px; font-size:0.92em;" onclick="toggleExample()">
+                    📖 Exemplo
+                </button>
+            </div>
+
             <div id="interaction-zone"></div>
-            <div id="feedback" style="margin-top:20px; min-height:25px"></div>
-            <button id="next-btn" class="main-btn" style="display:none; background:var(--success); margin-top:15px" onclick="processNext()">Próximo (Enter)</button>
+            <div id="feedback" style="margin-top:20px; min-height:32px; font-size:1.1em;"></div>
+            
+            <button id="next-btn" class="main-btn" style="display:none; background:var(--success); margin-top:15px;" onclick="processNext()">
+                Próximo (Enter)
+            </button>
+        </div>
+    </div>
+
+    <!-- Estatísticas -->
+    <div id="stats" class="section">
+        <div class="deck-card">
+            <h3>📊 Estatísticas Gerais</h3>
+            <div id="stats-content"></div>
         </div>
     </div>
 </div>
+
 <script type="module" src="./hsk_data.js"></script>
 <script type="module" src="./app.js"></script>
 </body>
