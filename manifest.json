@@ -1,0 +1,17 @@
+{
+  "name": "Mandarim Spaced Repetition System",
+  "short_name": "MandarimSRS",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#1a202c",
+  "theme-color": "#1a202c",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512' fill='%23e53e3e'><rect width='512' height='512' rx='15%'/><text x='50%' y='65%' font-size='280' font-family='sans-serif' font-weight='bold' text-anchor='middle' fill='white'>學</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

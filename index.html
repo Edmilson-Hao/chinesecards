@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mandarim SRS</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a202c">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+</head>
+<body>
+    <nav class="nav-container">
+        <div class="nav-tabs">
+            <button id="tab-study" class="nav-btn active">Início / Estudo</button>
+            <button id="tab-management" class="nav-btn">Gerenciar</button>
+            <button id="tab-statistics" class="nav-btn">Dados</button>
+            <button id="tab-sync" class="nav-btn">Sincronizar P2P</button>
+        </div>
+    </nav>
+
+    <main id="app-container" class="container"></main>
+
+    <div id="toast" class="toast hidden"></div>
+
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>

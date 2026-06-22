@@ -1,0 +1,21 @@
+/
+├── index.html
+├── manifest.json
+├── service-worker.js
+├── palavras (apenas meu backup das palavras que vou adicionar, não faz parte do escopo do app)
+├── estrutura (apenas arquivo que guarda estrutura horiginal,  não faz parte do escopo do app)
+├── css/
+│   ├── main.css
+│   ├── components.css
+│   └── responsive.css
+└── js/
+    ├── app.js
+    ├── audio.js
+    ├── flashcards.js
+    ├── importExport.js
+    ├── management.js
+    ├── router.js
+    ├── scheduler.js
+    ├── statistics.js
+    ├── storage.js
+    ├── ui.js
